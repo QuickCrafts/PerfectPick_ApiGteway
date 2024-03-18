@@ -147,6 +147,20 @@ Content-Type: application/json
 
 ### Queries
 
+<a id="id3.1"></a>
+
+#### User Management
+
+<a id="id3.1.1"></a>
+
+**Get user by user id**
+
+_Logic Steps_
+
+_Query Example_
+
+_Query Response_
+
 <!-- @todo -->
 
 
