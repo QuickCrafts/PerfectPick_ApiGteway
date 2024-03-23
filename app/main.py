@@ -9,12 +9,19 @@ class User:
     name: str
     age: int
 
+@strawberry.type
+class Other:
+    name: str
+
 
 @strawberry.type
 class Query:
     @strawberry.field
     def user(self) -> User:
         return User(name="Patrick", age=100)
+    @strawberry.field
+    def another(self) -> Other:
+        return Other(name="Hey")
 
 
 schema = strawberry.Schema(query=Query)
