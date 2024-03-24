@@ -2,6 +2,7 @@ import strawberry
 from fastapi import FastAPI
 from strawberry.asgi import GraphQL
 from starlette.middleware.cors import CORSMiddleware
+import httpx
 
 
 @strawberry.type
@@ -41,3 +42,12 @@ app.add_middleware(
 
 app.add_route("/graphql", graphql_app)
 app.add_websocket_route("/graphql", graphql_app)
+
+# Syntax for HTTP requests to Microservices
+@app.get("/Users")
+async def testFetch():
+    api_url = "http://localhost:8080/Users"
+    async with httpx.AsyncClient() as client:
+        response = await client.get(api_url)
+        print(response.json())
+        return response.json()
