@@ -2,27 +2,44 @@ import strawberry
 from fastapi import FastAPI
 from strawberry.asgi import GraphQL
 from starlette.middleware.cors import CORSMiddleware
-import httpx
+from app.GraphQL.Users.userQueries import GetAllUsers, GetSingleUser
+from app.GraphQL.Users.userTypes import User
+from dotenv import load_dotenv
+from app.utils import Authenticate
+
+load_dotenv()
 
 
-@strawberry.type
-class User:
-    name: str
-    age: int
+
 
 @strawberry.type
 class Other:
     name: str
 
+@strawberry.type
+class UserToken:
+    isTokenValid: bool
+    Code: int
+
 
 @strawberry.type
 class Query:
     @strawberry.field
-    def user(self) -> User:
-        return User(name="Patrick", age=100)
+    async def GetAllUsersGQL(self) -> list[User]:
+        return await GetAllUsers()
+    
     @strawberry.field
-    def another(self) -> Other:
-        return Other(name="Hey")
+    async def GetSingleUserGQL(self, userID: int) -> User:
+        potentialData = await GetSingleUser(userID=userID)
+        if potentialData is None:
+            raise ValueError("User not found")
+        else:
+            return potentialData
+
+    @strawberry.field
+    async def Authenticate(self, userToken: str) -> UserToken:
+        result = await Authenticate(userToken)
+        return UserToken(isTokenValid=result["isTokenValid"], Code=result["Code"])
 
 
 schema = strawberry.Schema(query=Query)
@@ -46,8 +63,5 @@ app.add_websocket_route("/graphql", graphql_app)
 # Syntax for HTTP requests to Microservices
 @app.get("/Users")
 async def testFetch():
-    api_url = "http://localhost:8080/Users"
-    async with httpx.AsyncClient() as client:
-        response = await client.get(api_url)
-        print(response.json())
-        return response.json()
+    return await Authenticate("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJjZXJ0c2VyaWFsbnVtYmVyIjoiMmo2Mm9PQUNya1BBbWc2SS9WV2Q3QT09IiwibmJmIjoxNzExMzg3MTc4LCJleHAiOjE3MTE0MDE1NzgsImlhdCI6MTcxMTM4NzE3OH0.g-_vB7PcG4_BqU-m1qQGXtUDcSeWfcTZhV6boBRJP9Q")
+
