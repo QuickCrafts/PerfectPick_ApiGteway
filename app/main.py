@@ -2,8 +2,8 @@ import strawberry
 from fastapi import FastAPI
 from strawberry.asgi import GraphQL
 from starlette.middleware.cors import CORSMiddleware
-from app.GraphQL.Users.userQueries import GetAllUsers, GetSingleUser
-from app.GraphQL.Users.userTypes import User
+from app.GraphQL.Users.userQueries import GetAllUsers, GetSingleUser, EmailLogin
+from app.GraphQL.Users.userTypes import User, UserToken
 from dotenv import load_dotenv
 from app.utils import Authenticate
 
@@ -17,29 +17,33 @@ class Other:
     name: str
 
 @strawberry.type
-class UserToken:
-    isTokenValid: bool
-    Code: int
-
-
-@strawberry.type
 class Query:
     @strawberry.field
-    async def GetAllUsersGQL(self) -> list[User]:
+    async def GetUsers(self, userToken: str) -> list[User]:
+        isTokenValid = await Authenticate(userToken)
+        if isTokenValid["isTokenValid"] == False:
+            raise ValueError("Invalid Token, user not authorized")
         return await GetAllUsers()
     
     @strawberry.field
-    async def GetSingleUserGQL(self, userID: int) -> User:
+    async def GetUserByUserID(self, userID: int, userToken: str) -> User:
+        isTokenValid = await Authenticate(userToken)
+        if isTokenValid["isTokenValid"] == False:
+            raise ValueError("Invalid Token, user not authorized")
         potentialData = await GetSingleUser(userID=userID)
         if potentialData is None:
             raise ValueError("User not found")
         else:
             return potentialData
-
+        
     @strawberry.field
-    async def Authenticate(self, userToken: str) -> UserToken:
-        result = await Authenticate(userToken)
-        return UserToken(isTokenValid=result["isTokenValid"], Code=result["Code"])
+    async def LoginWithEmail(self, email: str, password: str) -> UserToken:
+        userToken = await EmailLogin(email=email, password=password)
+        if userToken is None:
+            raise ValueError("User not found")
+        else:
+            return userToken
+        
 
 
 schema = strawberry.Schema(query=Query)

@@ -1,4 +1,4 @@
-from app.GraphQL.Users.userTypes import User
+from app.GraphQL.Users.userTypes import User, UserToken
 import httpx
 import os
 import strawberry
@@ -25,3 +25,12 @@ async def GetSingleUser(userID: int) -> User:
         data = response.json()
         # Turns the JSON into a User object
         return User(**data)
+    
+async def EmailLogin(email: str, password: str) -> UserToken:
+    api_url = os.environ.get("USERS_URL")
+    auth_url = api_url + "/Users/Login"
+    async with httpx.AsyncClient() as client:
+        response = await client.post(auth_url, headers={"Content-Type": "application/json"}, json={"email": email, "password": password})
+        if response.status_code == 500:
+            return None
+        return UserToken(token=response.text)

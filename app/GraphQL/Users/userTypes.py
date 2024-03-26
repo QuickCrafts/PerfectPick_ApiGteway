@@ -13,3 +13,7 @@ class User:
     createdTime: str
     verified: bool
     setup: bool
+
+@strawberry.type
+class UserToken:
+    token: str
