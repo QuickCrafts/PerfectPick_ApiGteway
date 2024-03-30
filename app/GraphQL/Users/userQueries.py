@@ -1,7 +1,6 @@
-from app.GraphQL.Users.userTypes import User, UserToken
+from app.GraphQL.Users.userTypes import User, UserToken, GoogleURL
 import httpx
 import os
-import strawberry
 
 
 
@@ -34,3 +33,12 @@ async def EmailLogin(email: str, password: str) -> UserToken:
         if response.status_code == 500:
             return None
         return UserToken(token=response.text)
+    
+async def GoogleLogin() -> UserToken:
+    api_url = os.environ.get("USERS_URL")
+    auth_url = api_url + "/Users/GoogleLogin"
+    async with httpx.AsyncClient() as client:
+        response = await client.get(auth_url)
+        if response.status_code == 500:
+            return None
+        return GoogleURL(url=response.url)

@@ -17,3 +17,11 @@ class User:
 @strawberry.type
 class UserToken:
     token: str
+
+@strawberry.type
+class GoogleURL:
+    url: str
+
+@strawberry.type
+class Other:
+    message: str
