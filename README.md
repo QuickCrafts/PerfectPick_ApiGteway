@@ -17,9 +17,10 @@ Run and deploy project instruction on [Deployment](#deploy).
 * [Queries](#id3)
   * [Users Management](#id3.1)
     * [Get user by user id](#id3.1.1)
-    * [Get users](#id3.1.2)
-    * [Login with email](#id3.1.3)
-    * [Login with google](#id3.1.4)
+    * [Get user by email](#id3.1.2)
+    * [Get users](#id3.1.3)
+    * [Login with email](#id3.1.4)
+    * [Login with google](#id3.1.5)
   * [Countries](#id3.2)
     * [Get countries](#id3.2.1)
     * [Get country by id](#id3.2.1)
@@ -101,15 +102,27 @@ Run and deploy project instruction on [Deployment](#deploy).
     * [Delete bill](#id4.9.1)
     * [Pay bill](#id4.9.1)
 * [Types](#id5)
-  <!-- @todo -->
   * [Users Management](#id5.1)
-  * [Countries](#id5.2)
-  * [Likes](#id5.3)
-  * [Catalog](#id5.4)
-  * [Recommendations](#id5.5)
-  * [Analysis](#id5.6)
-  * [Release](#id5.7)
-  * [Payments](#id5.8)
+    * [User](#id5.1.1)
+    * [Country](#id5.1.2)
+  * [Likes](#id5.2)
+    * [Like](#id5.2.1)
+    * [UserPreferences](#id5.2.2)
+    * [Wishlist](#id5.2.2)
+  * [Catalog](#id5.3)
+    * [Book](#id5.3.1)
+    * [Song](#id5.3.2)
+    * [Movie](#id5.3.3)
+  * [Recommendations](#id5.4)
+    * [Recommendation](#id5.4.1)
+  * [Analysis](#id5.5)
+    * [Analysis](#id5.5.1)
+  * [Release](#id5.6)
+    * [Company](#id5.6.1)
+    * [Ad](#id5.6.2)
+  * [Payments](#id5.7)
+    * [Bill](#id5.7.2)
+    * [Payment](#id5.7.3)
 
 ***
 <br />
@@ -157,11 +170,123 @@ Content-Type: application/json
 
 _Logic Steps_
 
+1. Verify user token - Users MS
+
+```bash
+  GET /users/verify/${token}
+```
+
+2. Get user by user id - Users MS
+
+```bash
+  GET /users/${id}
+```
+
+2. Get country by id - Users MS
+
+```bash
+  GET /countries/${id}
+```
+
 _Query Example_
 
-_Query Response_
+```graphql
+query {
+  userByID(id: int!) {
+    """
+    User Type atributes
+    """
+  }
+}
+```
 
-<!-- @todo -->
+_Query Type Response_
+
+[User](#id5.1.1)
+
+
+
+<a id="id3.1.2"></a>
+
+**Get user by email**
+
+_Logic Steps_
+
+1. Verify user token - Users MS
+
+```bash
+  GET /users/verify/${token}
+```
+
+2. Get user by email - Users MS
+
+```bash
+  GET /users/email/${email}
+```
+
+2. Get country by id - Users MS
+
+```bash
+  GET /countries/${id}
+```
+
+_Query Example_
+
+```graphql
+query {
+  userByEmail(email: str!) {
+    """
+    User Type atributes
+    """
+  }
+}
+```
+
+_Query Type Response_
+
+[User](#id5.1.1)
+
+
+
+<a id="id3.1.3"></a>
+
+**Get all users**
+
+_Logic Steps_
+
+1. Verify user token - Users MS
+
+```bash
+  GET /users/verify/${token}
+```
+
+2. Get users filtered - Users MS
+
+```bash
+  GET /users?...
+```
+
+2. Get country by id for each user - Users MS
+
+```bash
+  GET /countries/${id}
+```
+
+_Query Example_
+
+```graphql
+query {
+  allUsers(email: str!) { //TODO ! parameters
+    """
+    Array of User Type atributes
+    """
+  }
+}
+```
+
+_Query Type Response_
+
+[User](#id5.1.1)
 
 
 
@@ -177,9 +302,43 @@ _Query Response_
 
 ### Types
 
-<!-- @todo -->
+<a id="id5.1"></a>
 
+#### Users Management
 
+<a id="id5.1.1"></a>
+
+**User**
+
+```graphql
+type User {
+  id: int!
+  firstname: str
+  lastname: str
+  avatar_url: str
+  birthdate: str
+  gender: str // 'M' | 'F' | 'O' | 'P'
+  country: Country // Country information - Country Type
+  created_time: str
+  email: str!
+  verified: bool!
+  setup: bool!
+  role: bool! // 0 -> 'READER' and 1 -> 'ADMIN'
+}
+```
+
+<a id="id5.1.2"></a>
+
+**Country**
+
+```graphql
+type Country {
+  id: int!
+  name: str! // English name
+  code_2: str! //ISO 3166-1 alpha-2
+  code_3: str! //ISO 3166-1 alpha-3
+}
+```
 
 ***
 <br />
