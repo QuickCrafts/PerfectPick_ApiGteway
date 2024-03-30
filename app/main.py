@@ -2,19 +2,14 @@ import strawberry
 from fastapi import FastAPI
 from strawberry.asgi import GraphQL
 from starlette.middleware.cors import CORSMiddleware
-from app.GraphQL.Users.userQueries import GetAllUsers, GetSingleUser, EmailLogin
-from app.GraphQL.Users.userTypes import User, UserToken
+from app.GraphQL.Users.userQueries import GetAllUsers, GetSingleUser, EmailLogin, GoogleLogin
+from app.GraphQL.Users.userMutations import RegisterUser, VerifyAccount
+from app.GraphQL.Users.userTypes import User, UserToken, GoogleURL, Other
 from dotenv import load_dotenv
 from app.utils import Authenticate
 
 load_dotenv()
 
-
-
-
-@strawberry.type
-class Other:
-    name: str
 
 @strawberry.type
 class Query:
@@ -44,9 +39,38 @@ class Query:
         else:
             return userToken
         
+    @strawberry.field
+    async def LoginWithGoogle(self) -> GoogleURL:
+        userToken = await GoogleLogin()
+        if userToken is None:
+            raise ValueError("User not found")
+        else:
+            return userToken
+        
+@strawberry.type
+class Mutation:
+    @strawberry.field
+    async def RegisterWithEmail(self, email: str, password: str, firstName: str, lastName: str, birthdate: str, role: bool) -> UserToken:
+        userToken = await RegisterUser(email=email, password=password, firstName=firstName, lastName=lastName, birthdate=birthdate, role=role)
+        if userToken is None:
+            raise ValueError("User not found")
+        else:
+            return userToken
+    
+    @strawberry.field
+    async def VerifyUserAccount(self, token: str) -> Other:
+        message = await VerifyAccount(token=token)
+        if message is None:
+            raise ValueError("User not found")
+        else:
+            return message
+        
 
 
-schema = strawberry.Schema(query=Query)
+        
+
+
+schema = strawberry.Schema(query=Query, mutation=Mutation)
 
 
 graphql_app = GraphQL(schema)
