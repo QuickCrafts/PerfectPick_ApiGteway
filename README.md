@@ -12,7 +12,7 @@ Run and deploy project instruction on [Deployment](#deploy).
 
 <a id="index"></a>
 
-**API Reference Index**
+##### **API Reference Index**
 
 * [Authentication](#id1)
 * [Message Queue](#id2)
@@ -70,23 +70,23 @@ Run and deploy project instruction on [Deployment](#deploy).
   * [Likes](#id4.3)
     * [Like media](#id4.3.1)
     * [Dislike media](#id4.3.2)
-    * [Delete like/dislike media](#id4.3.3)
+    * [Delete preference](#id4.3.3)
     * [Rating media](#id4.3.4)
     * [Update media rating](#id4.3.5)
     * [Add media to wishlist](#id4.3.6)
     * [Remove media from wishlist](#id4.3.7)
   * [Catalog](#id4.4)
     * [Create book](#id4.4.1)
-    * [Create movie](#id4.4.2)
-    * [Create song](#id4.4.3)
-    * [Update book](#id4.4.4)
-    * [Update movie](#id4.4.5)
-    * [Update song](#id4.4.6)
-    * [Delete book](#id4.4.7)
-    * [Delete movie](#id4.4.8)
-    * [Delete song](#id4.4.9)
-    * [Import books data](#id4.4.10)
-    * [Import movies data](#id4.4.11)
+    * [Update book](#id4.4.2)
+    * [Delete book](#id4.4.3)
+    * [Import books data](#id4.4.4)
+    * [Create movie](#id4.4.5)
+    * [Update movie](#id4.4.6)
+    * [Delete movie](#id4.4.7)
+    * [Import movies data](#id4.4.8)
+    * [Create song](#id4.4.9)
+    * [Update song](#id4.4.10)
+    * [Delete song](#id4.4.11)
     * [Import songs data](#id4.4.12)
   * [Recommendations](#id4.5)
     * [Mark Recommend as used](#id4.5.1)
@@ -103,8 +103,8 @@ Run and deploy project instruction on [Deployment](#deploy).
     * [TTPAR](#id4.8.2)
   * [Payments](#id4.9)
     * [Create bill](#id4.9.1)
-    * [Delete bill](#id4.9.1)
-    * [Pay bill](#id4.9.1)
+    * [Pay bill](#id4.9.2)
+    * [Cancel bill](#id4.9.3)
 * [Types](#id5)
   * [Users Management](#id5.1)
     * [User](#id5.1.1)
@@ -119,6 +119,12 @@ Run and deploy project instruction on [Deployment](#deploy).
     * [Wishlist](#id5.2.3)
   * [Catalog](#id5.3)
     * [Media](#id5.3.1)
+    * [CreateBook](#id5.3.2)
+    * [UpdateBook](#id5.3.3)
+    * [CreateMovie](#id5.3.4)
+    * [UpdateMovie](#id5.3.5)
+    * [CreateSong](#id5.3.6)
+    * [UpdateSong](#id5.3.7)
   * [Recommendations](#id5.4)
     * [Recommendation](#id5.4.1)
   * [Analysis](#id5.5)
@@ -130,8 +136,13 @@ Run and deploy project instruction on [Deployment](#deploy).
   * [Release](#id5.6)
     * [Company](#id5.6.1)
     * [Ad](#id5.6.2)
+    * [CreateCompany](#id5.6.3)
+    * [UpdateCompany](#id5.6.4)
+    * [UpdateAd](#id5.6.5)
+    * [CreateAd](#id5.6.6)
   * [Payments](#id5.7)
     * [Bill](#id5.7.1)
+    * [CreateBill](#id5.7.2)
 
 ***
 <br />
@@ -175,7 +186,7 @@ Content-Type: application/json
 
 <a id="id3.1.1"></a>
 
-**Get user by user id**
+##### **Get user by user id**
 
 _Logic Steps_
 
@@ -230,7 +241,7 @@ _Query Type Response_
 
 <a id="id3.1.2"></a>
 
-**Get user by email**
+##### **Get user by email**
 
 _Logic Steps_
 
@@ -284,7 +295,7 @@ _Query Type Response_
 
 <a id="id3.1.3"></a>
 
-**Get all users**
+##### **Get all users**
 
 _Logic Steps_
 
@@ -348,7 +359,7 @@ Array of [User](#id5.1.1) type.
 
 <a id="id3.1.4"></a>
 
-**Login with email**
+##### **Login with email**
 
 _Logic Steps_
 
@@ -389,7 +400,7 @@ User token (string).
 
 <a id="id3.1.5"></a>
 
-**Login with google**
+##### **Login with google**
 
 _Logic Steps_
 
@@ -433,7 +444,7 @@ User token (string).
 
 <a id="id3.2.1"></a>
 
-**Get countries**
+##### **Get countries**
 
 _Logic Steps_
 
@@ -470,7 +481,7 @@ _Query Type Response_
 ---
 <a id="id3.2.2"></a>
 
-**Get country by id**
+##### **Get country by id**
 
 _Logic Steps_
 
@@ -515,7 +526,7 @@ _Query Type Response_
 
 <a id="id3.3.1"></a>
 
-**Get likes by user id**
+##### **Get likes by user id**
 
 _Logic Steps_
 
@@ -566,7 +577,7 @@ Array of [Like](#id5.2.1) type.
 
 <a id="id3.3.2"></a>
 
-**Get likes by media id**
+##### **Get likes by media id**
 
 _Logic Steps_
 
@@ -611,7 +622,7 @@ Array of [Like](#id5.2.1) type.
 
 <a id="id3.3.3"></a>
 
-**Get wishlist by user id**
+##### **Get wishlist by user id**
 
 _Logic Steps_
 
@@ -681,14 +692,14 @@ _Query Type Response_
 
 <a id="id3.3.4"></a>
 
-**Get rating by media id**
+##### **Get rating by media id**
 
 _Logic Steps_
 
 1. Get rating by media id - Likes MS
 
 ```bash
-  GET /likes/average/${id}?...
+  GET /likes/rate/${id}?media_type=${media}
 ```
 
 _Query Example_
@@ -726,7 +737,7 @@ _Query Type Response_
 
 <a id="id3.4.1"></a>
 
-**Get Books**
+##### **Get Books**
 
 _Logic Steps_
 
@@ -778,7 +789,7 @@ Array of [Media](#id5.3.1) type. If user id inside request, media type will have
 
 <a id="id3.4.2"></a>
 
-**Get movies**
+##### **Get movies**
 
 _Logic Steps_
 
@@ -834,7 +845,7 @@ Array of [Media](#id5.3.1) type. If user id inside request, media type will have
 
 <a id="id3.4.3"></a>
 
-**Get songs**
+##### **Get songs**
 
 _Logic Steps_
 
@@ -889,7 +900,7 @@ Array of [Media](#id5.3.1) type. If user id inside request, media type will have
 
 <a id="id3.4.4"></a>
 
-**Get Book by id**
+##### **Get Book by id**
 
 _Logic Steps_
 
@@ -944,7 +955,7 @@ _Query Type Response_
 
 <a id="id3.4.5"></a>
 
-**Get movie by id**
+##### **Get movie by id**
 
 _Logic Steps_
 
@@ -1000,7 +1011,7 @@ _Query Type Response_
 
 <a id="id3.4.6"></a>
 
-**Get song by id**
+##### **Get song by id**
 
 _Logic Steps_
 
@@ -1059,7 +1070,7 @@ _Query Type Response_
 
 <a id="id3.5.1"></a>
 
-**Get recommend**
+##### **Get recommend**
 
 _Logic Steps_
 
@@ -1131,7 +1142,7 @@ _Query Type Response_
 
 <a id="id3.6.1"></a>
 
-**Generate Analysis**
+##### **Generate Analysis**
 
 _Logic Steps_
 
@@ -1209,7 +1220,7 @@ _Query Type Response_
 
 <a id="id3.7.1"></a>
 
-**Get user ads**
+##### **Get user ads**
 
 _Logic Steps_
 
@@ -1258,7 +1269,7 @@ Array of [Ad](#id5.6.2) type.
 
 <a id="id3.7.2"></a>
 
-**Get company ads**
+##### **Get company ads**
 
 _Logic Steps_
 
@@ -1313,7 +1324,7 @@ Array of [Ad](#id5.6.2) type.
 
 <a id="id3.7.3"></a>
 
-**Get ads**
+##### **Get ads**
 
 Get ads by company, published state or start and end date.
 
@@ -1384,7 +1395,7 @@ Array of [Ad](#id5.6.2) type.
 
 <a id="id3.7.4"></a>
 
-**Get companies**
+##### **Get companies**
 
 _Logic Steps_
 
@@ -1443,7 +1454,7 @@ Array of [Company](#id5.6.1) type.
 
 <a id="id3.8.1"></a>
 
-**Get bills by company**
+##### **Get bills by company**
 
 _Logic Steps_
 
@@ -1498,7 +1509,7 @@ Array of [Bill](#id5.7.1) type.
 
 <a id="id3.8.2"></a>
 
-**Get bills by ad**
+##### **Get bills by ad**
 
 _Logic Steps_
 
@@ -1554,7 +1565,7 @@ Array of [Bill](#id5.7.1) type.
 
 <a id="id3.8.3"></a>
 
-**Get bills**
+##### **Get bills**
 
 _Logic Steps_
 
@@ -1611,9 +1622,9 @@ Array of [Bill](#id5.7.1) type.
 
 ---
 
-<a id="id3.8.2"></a>
+<a id="id3.8.4"></a>
 
-**Get bill by id**
+##### **Get bill by id**
 
 _Logic Steps_
 
@@ -1679,7 +1690,7 @@ _Query Type Response_
 
 <a id="id4.1.1"></a>
 
-**Sign up user with email**
+##### **Sign up user with email**
 
 _Logic Steps_
 
@@ -1715,7 +1726,7 @@ _Mutation Parameters_
 
 <a id="id4.1.2"></a>
 
-**Sign up user with google**
+##### **Sign up user with google**
 
 _Logic Steps_
 
@@ -1751,7 +1762,7 @@ _Mutation Parameters_
 
 <a id="id4.1.3"></a>
 
-**Verify user account**
+##### **Verify user account**
 
 _Logic Steps_
 
@@ -1786,7 +1797,7 @@ _Mutation Parameters_
 
 <a id="id4.1.4"></a>
 
-**Forgot Password**
+##### **Forgot Password**
 
 _Logic Steps_
 
@@ -1832,7 +1843,7 @@ _Mutation Parameters_
 
 <a id="id4.1.5"></a>
 
-**Change Password**
+##### **Change Password**
 
 _Logic Steps_
 
@@ -1875,7 +1886,7 @@ _Mutation Parameters_
 
 <a id="id4.1.6"></a>
 
-**Update User**
+##### **Update User**
 
 _Logic Steps_
 
@@ -1917,7 +1928,7 @@ _Mutation Parameters_
 
 <a id="id4.1.7"></a>
 
-**Complete Setup**
+##### **Complete Setup**
 
 _Logic Steps_
 
@@ -1959,7 +1970,7 @@ _Mutation Parameters_
 
 <a id="id4.1.8"></a>
 
-**Delete User**
+##### **Delete User**
 
 _Logic Steps_
 
@@ -2022,11 +2033,23 @@ _Mutation Parameters_
 
 <a id="id4.2.1"></a>
 
-**Create Country**
+##### **Create Country**
 
 _Logic Steps_
 
-1. Create country - Users MS
+1. Verify user token - Users MS
+
+```bash
+  GET /users/verify/${token}
+```
+
+2. Check user role is Admin - Users MS
+
+```bash
+  GET /users/verify/role/${id}
+```
+
+3. Create country - Users MS
 
 ```bash
   POST /countries
@@ -2036,7 +2059,7 @@ _Mutation Example_
 
 ```graphql
 mutation {
-  createCountry(country: CreateCountry!) {
+  createCountry(token: str!, country: CreateCountry!) {
     id // int
   }
 }
@@ -2044,6 +2067,7 @@ mutation {
 
 _Mutation Parameters_
 
+* `token` is user login token (string) **REQUIRED**.
 * `country` is country create type input ([CreateCountry](#id5.1.5)) **REQUIRED**.
 
 ---
@@ -2058,11 +2082,23 @@ _Mutation Parameters_
 
 <a id="id4.2.2"></a>
 
-**Update Country**
+##### **Update Country**
 
 _Logic Steps_
 
-1. Update country - Users MS
+1. Verify user token - Users MS
+
+```bash
+  GET /users/verify/${token}
+```
+
+2. Check user role is Admin - Users MS
+
+```bash
+  GET /users/verify/role/${id}
+```
+
+3. Update country - Users MS
 
 ```bash
   PUT /countries/${id}
@@ -2072,12 +2108,13 @@ _Mutation Example_
 
 ```graphql
 mutation {
-  updateCountry(id: int!, country: UpdateCountry!) {}
+  updateCountry(toke: str!, id: int!, country: UpdateCountry!) {}
 }
 ```
 
 _Mutation Parameters_
 
+* `token` is user login token (string) **REQUIRED**.
 * `id` is country id (int) **REQUIRED**.
 * `country` is country update type input ([UpdateCountry](#id5.1.6)) **REQUIRED**.
 
@@ -2093,26 +2130,39 @@ _Mutation Parameters_
 
 <a id="id4.2.3"></a>
 
-**Delete Country**
+##### **Delete Country**
 
 _Logic Steps_
 
-1. Delete country - Users MS
+1. Verify user token - Users MS
 
 ```bash
-  PUT /countries/${id}
+  GET /users/verify/${token}
+```
+
+2. Check user role is Admin - Users MS
+
+```bash
+  GET /users/verify/role/${id}
+```
+
+3. Delete country - Users MS
+
+```bash
+  DELETE /countries/${id}
 ```
 
 _Mutation Example_
 
 ```graphql
 mutation {
-  deleteCountry(id: int!) {}
+  deleteCountry(token: str!, id: int!) {}
 }
 ```
 
 _Mutation Parameters_
 
+* `token` is user login token (string) **REQUIRED**.
 * `id` is country id (int) **REQUIRED**.
 
 ---
@@ -2127,11 +2177,23 @@ _Mutation Parameters_
 
 <a id="id4.2.4"></a>
 
-**Import countries data**
+##### **Import countries data**
 
 _Logic Steps_
 
-1. Import countries data - Users MS
+1. Verify user token - Users MS
+
+```bash
+  GET /users/verify/${token}
+```
+
+2. Check user role is Admin - Users MS
+
+```bash
+  GET /users/verify/role/${id}
+```
+
+3. Import countries data - Users MS
 
 ```bash
   PUT /countries
@@ -2141,9 +2203,13 @@ _Mutation Example_
 
 ```graphql
 mutation {
-  importCountries() {}
+  importCountries(token: str!) {}
 }
 ```
+
+_Mutation Parameters_
+
+* `token` is user login token (string) **REQUIRED**.
 
 ---
 
@@ -2156,52 +2222,1525 @@ mutation {
 ---
 
 
-
-
 <a id="id4.3"></a>
 
 #### Likes
 
-<!-- @todo -->
+<a id="id4.3.1"></a>
+
+##### **Like media**
+
+_Logic Steps_
+
+1. Verify user token - Users MS
+
+```bash
+  GET /users/verify/${token}
+```
+
+2. Like media - Likes MS
+
+```bash
+  POST /likes
+```
+
+_Mutation Example_
+
+```graphql
+mutation {
+  likeMedia(
+    token: str!, 
+    id: int!,
+    media_id: int!,
+    type: str!
+  ) {}
+}
+```
+
+_Mutation Parameters_
+
+* `id` is user id (int) **REQUIRED**.
+* `token` is user login token (string) **REQUIRED**.
+* `media_id` is media id (int) **REQUIRED**.
+* `type` is media enum type: 'MOV' | 'BOO' | 'SON' (string) **REQUIRED**.
+
+---
+
+<p>
+<p></p>
+<a style="color:white; background-color: gray; padding: 5px; border-radius: 8px;" href="#index">Go to Index ↑</a>
+<p></p>
+</p>
+
+---
+
+<a id="id4.3.2"></a>
+
+##### **Dislike media**
+
+_Logic Steps_
+
+1. Verify user token - Users MS
+
+```bash
+  GET /users/verify/${token}
+```
+
+2. Dislike media - Likes MS
+
+```bash
+  POST /likes
+```
+
+_Mutation Example_
+
+```graphql
+mutation {
+  dislikeMedia(
+    token: str!, 
+    id: int!,
+    media_id: int!,
+    type: str!
+  ) {}
+}
+```
+
+_Mutation Parameters_
+
+* `id` is user id (int) **REQUIRED**.
+* `token` is user login token (string) **REQUIRED**.
+* `media_id` is media id (int) **REQUIRED**.
+* `type` is media enum type: 'MOV' | 'BOO' | 'SON' (string) **REQUIRED**.
+
+---
+
+<p>
+<p></p>
+<a style="color:white; background-color: gray; padding: 5px; border-radius: 8px;" href="#index">Go to Index ↑</a>
+<p></p>
+</p>
+
+---
+
+<a id="id4.3.3"></a>
+
+##### **Delete preference**
+
+_Logic Steps_
+
+1. Verify user token - Users MS
+
+```bash
+  GET /users/verify/${token}
+```
+
+2. Delete preference - Likes MS
+
+```bash
+  DELETE /likes?user_id=${id}&media_id=${media_id}&media_type=${type}
+```
+
+_Mutation Example_
+
+```graphql
+mutation {
+  deletePreference(
+    token: str!, 
+    id: int!,
+    media_id: int!,
+    type: str!
+  ) {}
+}
+```
+
+_Mutation Parameters_
+
+* `id` is user id (int) **REQUIRED**.
+* `token` is user login token (string) **REQUIRED**.
+* `media_id` is media id (int) **REQUIRED**.
+* `type` is media enum type: 'MOV' | 'BOO' | 'SON' (string) **REQUIRED**.
+
+---
+
+<p>
+<p></p>
+<a style="color:white; background-color: gray; padding: 5px; border-radius: 8px;" href="#index">Go to Index ↑</a>
+<p></p>
+</p>
+
+---
+
+<a id="id4.3.4"></a>
+
+##### **Rating media**
+
+_Logic Steps_
+
+1. Verify user token - Users MS
+
+```bash
+  GET /users/verify/${token}
+```
+
+2. Rate media with a user id - Likes MS
+
+```bash
+  POST /likes/rate/${media_id}?user_id=${id}&media_type=${type}
+```
+
+_Mutation Example_
+
+```graphql
+mutation {
+  rateMedia(
+    token: str!, 
+    id: int!,
+    media_id: int!,
+    type: str!,
+    rating: float!
+  ) {}
+}
+```
+
+_Mutation Parameters_
+
+* `id` is user id (int) **REQUIRED**.
+* `token` is user login token (string) **REQUIRED**.
+* `media_id` is media id (int) **REQUIRED**.
+* `type` is media enum type: 'MOV' | 'BOO' | 'SON' (string) **REQUIRED**.
+* `rating` is user rating given to media (float) **REQUIRED**.
+
+---
+
+<p>
+<p></p>
+<a style="color:white; background-color: gray; padding: 5px; border-radius: 8px;" href="#index">Go to Index ↑</a>
+<p></p>
+</p>
+
+---
+
+<a id="id4.3.5"></a>
+
+##### **Update media rating**
+
+_Logic Steps_
+
+1. Verify user token - Users MS
+
+```bash
+  GET /users/verify/${token}
+```
+
+2. Update media rate with a user id - Likes MS
+
+```bash
+  PUT /likes/rate/${media_id}?user_id=${id}&media_type=${type}
+```
+
+_Mutation Example_
+
+```graphql
+mutation {
+  updateRate(
+    token: str!, 
+    id: int!,
+    media_id: int!,
+    type: str!,
+    rating: float!
+  ) {}
+}
+```
+
+_Mutation Parameters_
+
+* `id` is user id (int) **REQUIRED**.
+* `token` is user login token (string) **REQUIRED**.
+* `media_id` is media id (int) **REQUIRED**.
+* `type` is media enum type: 'MOV' | 'BOO' | 'SON' (string) **REQUIRED**.
+* `rating` is user rating given to media (float) **REQUIRED**.
+
+---
+
+<p>
+<p></p>
+<a style="color:white; background-color: gray; padding: 5px; border-radius: 8px;" href="#index">Go to Index ↑</a>
+<p></p>
+</p>
+
+---
+
+
+<a id="id4.3.6"></a>
+
+##### **Add media to wishlist**
+
+_Logic Steps_
+
+1. Verify user token - Users MS
+
+```bash
+  GET /users/verify/${token}
+```
+
+2. Add media to wishlist - Likes MS
+
+```bash
+  POST /likes/wishlist/${id}?media_id=${media_id}&media_type=${type}
+```
+
+_Mutation Example_
+
+```graphql
+mutation {
+  addToWishlist(
+    token: str!, 
+    id: int!,
+    media_id: int!,
+    type: str!
+  ) {}
+}
+```
+
+_Mutation Parameters_
+
+* `id` is user id (int) **REQUIRED**.
+* `token` is user login token (string) **REQUIRED**.
+* `media_id` is media id (int) **REQUIRED**.
+* `type` is media enum type: 'MOV' | 'BOO' | 'SON' (string) **REQUIRED**.
+
+---
+
+<p>
+<p></p>
+<a style="color:white; background-color: gray; padding: 5px; border-radius: 8px;" href="#index">Go to Index ↑</a>
+<p></p>
+</p>
+
+---
+
+<a id="id4.3.6"></a>
+
+##### **Remove media from wishlist**
+
+_Logic Steps_
+
+1. Verify user token - Users MS
+
+```bash
+  GET /users/verify/${token}
+```
+
+2. Remove media from wishlist - Likes MS
+
+```bash
+  DELETE /likes/wishlist/${id}?media_id=${media_id}&media_type=${type}
+```
+
+_Mutation Example_
+
+```graphql
+mutation {
+  removeFromWishlist(
+    token: str!, 
+    id: int!,
+    media_id: int!,
+    type: str!
+  ) {}
+}
+```
+
+_Mutation Parameters_
+
+* `id` is user id (int) **REQUIRED**.
+* `token` is user login token (string) **REQUIRED**.
+* `media_id` is media id (int) **REQUIRED**.
+* `type` is media enum type: 'MOV' | 'BOO' | 'SON' (string) **REQUIRED**.
+
+---
+
+<p>
+<p></p>
+<a style="color:white; background-color: gray; padding: 5px; border-radius: 8px;" href="#index">Go to Index ↑</a>
+<p></p>
+</p>
+
+---
 
 <a id="id4.4"></a>
 
 #### Catalog
 
-<!-- @todo -->
+<a id="id4.4.1"></a>
+
+##### **Create book**
+
+_Logic Steps_
+
+1. Verify user token - Users MS
+
+```bash
+  GET /users/verify/${token}
+```
+
+2. Check user role is Admin - Users MS
+
+```bash
+  GET /users/verify/role/${id}
+```
+
+3. Create book - Catalog MS
+
+```bash
+  POST /books
+```
+
+_Mutation Example_
+
+```graphql
+mutation {
+  createBook(token: str!, book: CreateBook!) {
+    id // int
+  }
+}
+```
+
+_Mutation Parameters_
+
+* `token` is user login token (string) **REQUIRED**.
+* `book` is book create type input ([CreateBook](#id5.3.2)) **REQUIRED**.
+
+---
+
+<p>
+<p></p>
+<a style="color:white; background-color: gray; padding: 5px; border-radius: 8px;" href="#index">Go to Index ↑</a>
+<p></p>
+</p>
+
+---
+
+<a id="id4.4.2"></a>
+
+##### **Update book**
+
+_Logic Steps_
+
+1. Verify user token - Users MS
+
+```bash
+  GET /users/verify/${token}
+```
+
+2. Check user role is Admin - Users MS
+
+```bash
+  GET /users/verify/role/${id}
+```
+
+3. Update book - Catalog MS
+
+```bash
+  PUT /books/${id}
+```
+
+_Mutation Example_
+
+```graphql
+mutation {
+  updateBook(toke: str!, id: int!, book: UpdateBook!) {}
+}
+```
+
+_Mutation Parameters_
+
+* `token` is user login token (string) **REQUIRED**.
+* `id` is book id (int) **REQUIRED**.
+* `book` is book update type input ([UpdateBook](#id5.3.3)) **REQUIRED**.
+
+---
+
+<p>
+<p></p>
+<a style="color:white; background-color: gray; padding: 5px; border-radius: 8px;" href="#index">Go to Index ↑</a>
+<p></p>
+</p>
+
+---
+
+<a id="id4.4.3"></a>
+
+##### **Delete book**
+
+_Logic Steps_
+
+1. Verify user token - Users MS
+
+```bash
+  GET /users/verify/${token}
+```
+
+2. Check user role is Admin - Users MS
+
+```bash
+  GET /users/verify/role/${id}
+```
+
+3. Delete book - Catalog MS
+
+```bash
+  DELETE /books/${id}
+```
+
+_Mutation Example_
+
+```graphql
+mutation {
+  deleteBook(token: str!, id: int!) {}
+}
+```
+
+_Mutation Parameters_
+
+* `token` is user login token (string) **REQUIRED**.
+* `id` is book id (int) **REQUIRED**.
+
+---
+
+<p>
+<p></p>
+<a style="color:white; background-color: gray; padding: 5px; border-radius: 8px;" href="#index">Go to Index ↑</a>
+<p></p>
+</p>
+
+---
+
+<a id="id4.4.4"></a>
+
+##### **Import books data**
+
+_Logic Steps_
+
+1. Verify user token - Users MS
+
+```bash
+  GET /users/verify/${token}
+```
+
+2. Check user role is Admin - Users MS
+
+```bash
+  GET /users/verify/role/${id}
+```
+
+3. Import books data - Catalog MS
+
+```bash
+  PUT /books
+```
+
+_Mutation Example_
+
+```graphql
+mutation {
+  importBooks(token: str!) {}
+}
+```
+
+_Mutation Parameters_
+
+* `token` is user login token (string) **REQUIRED**.
+
+---
+
+<p>
+<p></p>
+<a style="color:white; background-color: gray; padding: 5px; border-radius: 8px;" href="#index">Go to Index ↑</a>
+<p></p>
+</p>
+
+---
+
+<a id="id4.4.5"></a>
+
+##### **Create movie**
+
+_Logic Steps_
+
+1. Verify user token - Users MS
+
+```bash
+  GET /users/verify/${token}
+```
+
+2. Check user role is Admin - Users MS
+
+```bash
+  GET /users/verify/role/${id}
+```
+
+3. Create movie - Catalog MS
+
+```bash
+  POST /movies
+```
+
+_Mutation Example_
+
+```graphql
+mutation {
+  createMovie(token: str!, movie: CreateMovie!) {
+    id // int
+  }
+}
+```
+
+_Mutation Parameters_
+
+* `token` is user login token (string) **REQUIRED**.
+* `movie` is movie create type input ([CreateMovie](#id5.3.4)) **REQUIRED**.
+
+---
+
+<p>
+<p></p>
+<a style="color:white; background-color: gray; padding: 5px; border-radius: 8px;" href="#index">Go to Index ↑</a>
+<p></p>
+</p>
+
+---
+
+<a id="id4.4.6"></a>
+
+##### **Update movie**
+
+_Logic Steps_
+
+1. Verify user token - Users MS
+
+```bash
+  GET /users/verify/${token}
+```
+
+2. Check user role is Admin - Users MS
+
+```bash
+  GET /users/verify/role/${id}
+```
+
+3. Update movie - Catalog MS
+
+```bash
+  PUT /movies/${id}
+```
+
+_Mutation Example_
+
+```graphql
+mutation {
+  updateMovie(toke: str!, id: int!, movie: UpdateMovie!) {}
+}
+```
+
+_Mutation Parameters_
+
+* `token` is user login token (string) **REQUIRED**.
+* `id` is movie id (int) **REQUIRED**.
+* `movie` is movie update type input ([UpdateMovie](#id5.3.5)) **REQUIRED**.
+
+---
+
+<p>
+<p></p>
+<a style="color:white; background-color: gray; padding: 5px; border-radius: 8px;" href="#index">Go to Index ↑</a>
+<p></p>
+</p>
+
+---
+
+<a id="id4.4.7"></a>
+
+##### **Delete movie**
+
+_Logic Steps_
+
+1. Verify user token - Users MS
+
+```bash
+  GET /users/verify/${token}
+```
+
+2. Check user role is Admin - Users MS
+
+```bash
+  GET /users/verify/role/${id}
+```
+
+3. Delete movie - Catalog MS
+
+```bash
+  DELETE /movies/${id}
+```
+
+_Mutation Example_
+
+```graphql
+mutation {
+  deleteMovie(token: str!, id: int!) {}
+}
+```
+
+_Mutation Parameters_
+
+* `token` is user login token (string) **REQUIRED**.
+* `id` is movie id (int) **REQUIRED**.
+
+---
+
+<p>
+<p></p>
+<a style="color:white; background-color: gray; padding: 5px; border-radius: 8px;" href="#index">Go to Index ↑</a>
+<p></p>
+</p>
+
+---
+
+<a id="id4.4.8"></a>
+
+##### **Import movies data**
+
+_Logic Steps_
+
+1. Verify user token - Users MS
+
+```bash
+  GET /users/verify/${token}
+```
+
+2. Check user role is Admin - Users MS
+
+```bash
+  GET /users/verify/role/${id}
+```
+
+3. Import movies data - Catalog MS
+
+```bash
+  PUT /movies
+```
+
+_Mutation Example_
+
+```graphql
+mutation {
+  importMovies(token: str!) {}
+}
+```
+
+_Mutation Parameters_
+
+* `token` is user login token (string) **REQUIRED**.
+
+---
+
+<p>
+<p></p>
+<a style="color:white; background-color: gray; padding: 5px; border-radius: 8px;" href="#index">Go to Index ↑</a>
+<p></p>
+</p>
+
+---
+
+<a id="id4.4.9"></a>
+
+##### **Create song**
+
+_Logic Steps_
+
+1. Verify user token - Users MS
+
+```bash
+  GET /users/verify/${token}
+```
+
+2. Check user role is Admin - Users MS
+
+```bash
+  GET /users/verify/role/${id}
+```
+
+3. Create song - Catalog MS
+
+```bash
+  POST /songs
+```
+
+_Mutation Example_
+
+```graphql
+mutation {
+  createSong(token: str!, song: CreateSong!) {
+    id // int
+  }
+}
+```
+
+_Mutation Parameters_
+
+* `token` is user login token (string) **REQUIRED**.
+* `song` is song create type input ([CreateSong](#id5.3.6)) **REQUIRED**.
+
+---
+
+<p>
+<p></p>
+<a style="color:white; background-color: gray; padding: 5px; border-radius: 8px;" href="#index">Go to Index ↑</a>
+<p></p>
+</p>
+
+---
+
+<a id="id4.4.10"></a>
+
+##### **Update song**
+
+_Logic Steps_
+
+1. Verify user token - Users MS
+
+```bash
+  GET /users/verify/${token}
+```
+
+2. Check user role is Admin - Users MS
+
+```bash
+  GET /users/verify/role/${id}
+```
+
+3. Update song - Catalog MS
+
+```bash
+  PUT /songs/${id}
+```
+
+_Mutation Example_
+
+```graphql
+mutation {
+  updateSong(toke: str!, id: int!, song: UpdateSong!) {}
+}
+```
+
+_Mutation Parameters_
+
+* `token` is user login token (string) **REQUIRED**.
+* `id` is song id (int) **REQUIRED**.
+* `song` is song update type input ([UpdateSong](#id5.3.7)) **REQUIRED**.
+
+---
+
+<p>
+<p></p>
+<a style="color:white; background-color: gray; padding: 5px; border-radius: 8px;" href="#index">Go to Index ↑</a>
+<p></p>
+</p>
+
+---
+
+<a id="id4.4.11"></a>
+
+##### **Delete song**
+
+_Logic Steps_
+
+1. Verify user token - Users MS
+
+```bash
+  GET /users/verify/${token}
+```
+
+2. Check user role is Admin - Users MS
+
+```bash
+  GET /users/verify/role/${id}
+```
+
+3. Delete song - Catalog MS
+
+```bash
+  DELETE /songs/${id}
+```
+
+_Mutation Example_
+
+```graphql
+mutation {
+  deleteSong(token: str!, id: int!) {}
+}
+```
+
+_Mutation Parameters_
+
+* `token` is user login token (string) **REQUIRED**.
+* `id` is song id (int) **REQUIRED**.
+
+---
+
+<p>
+<p></p>
+<a style="color:white; background-color: gray; padding: 5px; border-radius: 8px;" href="#index">Go to Index ↑</a>
+<p></p>
+</p>
+
+---
+
+<a id="id4.4.12"></a>
+
+##### **Import songs data**
+
+_Logic Steps_
+
+1. Verify user token - Users MS
+
+```bash
+  GET /users/verify/${token}
+```
+
+2. Check user role is Admin - Users MS
+
+```bash
+  GET /users/verify/role/${id}
+```
+
+3. Import songs data - Catalog MS
+
+```bash
+  PUT /songs
+```
+
+_Mutation Example_
+
+```graphql
+mutation {
+  importSongs(token: str!) {}
+}
+```
+
+_Mutation Parameters_
+
+* `token` is user login token (string) **REQUIRED**.
+
+---
+
+<p>
+<p></p>
+<a style="color:white; background-color: gray; padding: 5px; border-radius: 8px;" href="#index">Go to Index ↑</a>
+<p></p>
+</p>
+
+---
 
 <a id="id4.5"></a>
 
 #### Recommendations
 
-<!-- @todo -->
+<a id="id4.5.1"></a>
+
+##### **Mark Recommend as used**
+
+Mark recommend as used an generate and save a new one.
+
+_Logic Steps_
+
+1. Verify user token - Users MS
+
+```bash
+  GET /users/verify/${token}
+```
+
+2. Update recommend status - Recommendations MS
+
+```bash
+  PUT /recommendation/${id}
+```
+
+3. Get catalog - Catalog MS
+
+* Get movies
+
+```bash
+  GET /movies
+```
+
+* Get books
+
+```bash
+  GET /books
+```
+
+* Get songs
+
+```bash
+  GET /songs
+```
+
+4. Get user preferences by user id - Likes MS
+
+```bash
+  GET /likes/user/${id}?...
+```
+
+5. Create a new recommendation - Recommendations MS
+
+```bash
+  POST /recommendation/${id}
+```
+
+_Mutation Example_
+
+```graphql
+mutation {
+  setUsedRecommend(token: str!, id: int!) {}
+}
+```
+
+_Mutation Parameters_
+
+* `token` is user login token (string) **REQUIRED**.
+* `id` is user id (int) **REQUIRED**.
+
+---
+
+<p>
+<p></p>
+<a style="color:white; background-color: gray; padding: 5px; border-radius: 8px;" href="#index">Go to Index ↑</a>
+<p></p>
+</p>
+
+---
+
+<a id="id4.5.2"></a>
+
+##### **Generate new recommend**
+
+Generate and save a new recommend.
+
+_Logic Steps_
+
+1. Verify user token - Users MS
+
+```bash
+  GET /users/verify/${token}
+```
+
+2. Get catalog - Catalog MS
+
+* Get movies
+
+```bash
+  GET /movies
+```
+
+* Get books
+
+```bash
+  GET /books
+```
+
+* Get songs
+
+```bash
+  GET /songs
+```
+
+3. Get user preferences by user id - Likes MS
+
+```bash
+  GET /likes/user/${id}?...
+```
+
+4. Create a new recommendation - Recommendations MS
+
+```bash
+  POST /recommendation/${id}
+```
+
+_Mutation Example_
+
+```graphql
+mutation {
+  generateRecommend(token: str!, id: int!) {}
+}
+```
+
+_Mutation Parameters_
+
+* `token` is user login token (string) **REQUIRED**.
+* `id` is user id (int) **REQUIRED**.
+
+---
+
+<p>
+<p></p>
+<a style="color:white; background-color: gray; padding: 5px; border-radius: 8px;" href="#index">Go to Index ↑</a>
+<p></p>
+</p>
+
+---
 
 <a id="id4.6"></a>
 
 #### Companies
 
-<!-- @todo -->
+<a id="id4.6.1"></a>
+
+##### **Create company**
+
+_Logic Steps_
+
+1. Verify user token - Users MS
+
+```bash
+  GET /users/verify/${token}
+```
+
+2. Check user role is Admin - Users MS
+
+```bash
+  GET /users/verify/role/${id}
+```
+
+3. Create company - Ads MS
+
+```bash
+  POST /companies
+```
+
+_Mutation Example_
+
+```graphql
+mutation {
+  createCompany(token: str!, company: CreateCompany!) {
+    id // int
+  }
+}
+```
+
+_Mutation Parameters_
+
+* `token` is user login token (string) **REQUIRED**.
+* `company` is company create type input ([CreateCompany](#id5.6.3)) **REQUIRED**.
+
+---
+
+<p>
+<p></p>
+<a style="color:white; background-color: gray; padding: 5px; border-radius: 8px;" href="#index">Go to Index ↑</a>
+<p></p>
+</p>
+
+---
+
+<a id="id4.6.2"></a>
+
+##### **Update company**
+
+_Logic Steps_
+
+1. Verify user token - Users MS
+
+```bash
+  GET /users/verify/${token}
+```
+
+2. Check user role is Admin - Users MS
+
+```bash
+  GET /users/verify/role/${id}
+```
+
+3. Update company - Ads MS
+
+```bash
+  PUT /companies/${id}
+```
+
+_Mutation Example_
+
+```graphql
+mutation {
+  updateCompany(toke: str!, id: int!, company: UpdateCompany!) {}
+}
+```
+
+_Mutation Parameters_
+
+* `token` is user login token (string) **REQUIRED**.
+* `id` is company id (int) **REQUIRED**.
+* `company` is company update type input ([UpdateCompany](#id5.6.4)) **REQUIRED**.
+
+---
+
+<p>
+<p></p>
+<a style="color:white; background-color: gray; padding: 5px; border-radius: 8px;" href="#index">Go to Index ↑</a>
+<p></p>
+</p>
+
+---
 
 <a id="id4.7"></a>
 
 #### Ads
 
-<!-- @todo -->
+<a id="id4.7.1"></a>
+
+##### **Create ad**
+
+_Logic Steps_
+
+1. Verify user token - Users MS
+
+```bash
+  GET /users/verify/${token}
+```
+
+2. Check user role is Admin - Users MS
+
+```bash
+  GET /users/verify/role/${id}
+```
+
+3. Create ad - Ads MS
+
+```bash
+  POST /ads
+```
+
+_Mutation Example_
+
+```graphql
+mutation {
+  createAd(token: str!, ad: CreateAd!) {
+    id // int
+  }
+}
+```
+
+_Mutation Parameters_
+
+* `token` is user login token (string) **REQUIRED**.
+* `ad` is ad create type input ([CreateAd](#id5.6.6)) **REQUIRED**.
+
+---
+
+<p>
+<p></p>
+<a style="color:white; background-color: gray; padding: 5px; border-radius: 8px;" href="#index">Go to Index ↑</a>
+<p></p>
+</p>
+
+---
+
+<a id="id4.7.2"></a>
+
+##### **Update ad**
+
+_Logic Steps_
+
+1. Verify user token - Users MS
+
+```bash
+  GET /users/verify/${token}
+```
+
+2. Check user role is Admin - Users MS
+
+```bash
+  GET /users/verify/role/${id}
+```
+
+3. Update ad - Ads MS
+
+```bash
+  PUT /ads/${id}
+```
+
+_Mutation Example_
+
+```graphql
+mutation {
+  updateAd(toke: str!, id: int!, ad: UpdateAd!) {}
+}
+```
+
+_Mutation Parameters_
+
+* `token` is user login token (string) **REQUIRED**.
+* `id` is ad id (int) **REQUIRED**.
+* `ad` is ad update type input ([UpdateAd](#id5.6.5)) **REQUIRED**.
+
+---
+
+<p>
+<p></p>
+<a style="color:white; background-color: gray; padding: 5px; border-radius: 8px;" href="#index">Go to Index ↑</a>
+<p></p>
+</p>
+
+---
+
+<a id="id4.7.3"></a>
+
+##### **Delete ad**
+
+_Logic Steps_
+
+1. Verify user token - Users MS
+
+```bash
+  GET /users/verify/${token}
+```
+
+2. Check user role is Admin - Users MS
+
+```bash
+  GET /users/verify/role/${id}
+```
+
+3. Delete ad - Ads MS
+
+```bash
+  DELETE /ads/${id}
+```
+
+_Mutation Example_
+
+```graphql
+mutation {
+  deleteAd(token: str!, id: int!) {}
+}
+```
+
+_Mutation Parameters_
+
+* `token` is user login token (string) **REQUIRED**.
+* `id` is ad id (int) **REQUIRED**.
+
+---
+
+<p>
+<p></p>
+<a style="color:white; background-color: gray; padding: 5px; border-radius: 8px;" href="#index">Go to Index ↑</a>
+<p></p>
+</p>
+
+---
 
 
 <a id="id4.8"></a>
 
 #### Release
 
+<a id="id4.8.1"></a>
+
+##### **Publish ad**
+
+_Logic Steps_
+
+1. Verify user token - Users MS
+
+```bash
+  GET /users/verify/${token}
+```
+
+2. Check user role is Admin - Users MS
+
+```bash
+  GET /users/verify/role/${id}
+```
+
+3. Publish ad - Ads MS
+
+```bash
+  POST /ads/publish/${id}
+```
+
+_Mutation Example_
+
+```graphql
+mutation {
+  publishAd(token: str!, id: int!) {}
+}
+```
+
+_Mutation Parameters_
+
+* `token` is user login token (string) **REQUIRED**.
+* `id` is ad id (int) **REQUIRED**.
+
+---
+
+<p>
+<p></p>
+<a style="color:white; background-color: gray; padding: 5px; border-radius: 8px;" href="#index">Go to Index ↑</a>
+<p></p>
+</p>
+
+---
+
+<a id="id4.8.2"></a>
+
+##### **Time Triggered Publish Ad Routine (TTPAR)**
 <!-- @todo -->
 
 <a id="id4.9"></a>
 
 #### Payments
 
-<!-- @todo -->
+<a id="id4.9.1"></a>
 
+##### **Create bill**
 
+_Logic Steps_
+
+1. Verify user token - Users MS
+
+```bash
+  GET /users/verify/${token}
+```
+
+2. Check user role is Admin - Users MS
+
+```bash
+  GET /users/verify/role/${id}
+```
+
+3. Create bill - Ads MS
+
+```bash
+  POST /payment
+```
+
+_Mutation Example_
+
+```graphql
+mutation {
+  createBill(token: str!, bill: CreateBill!) {
+    id // int
+  }
+}
+```
+
+_Mutation Parameters_
+
+* `token` is user login token (string) **REQUIRED**.
+* `bill` is bill create type input ([CreateBill](#id5.7.2)) **REQUIRED**.
+
+---
+
+<p>
+<p></p>
+<a style="color:white; background-color: gray; padding: 5px; border-radius: 8px;" href="#index">Go to Index ↑</a>
+<p></p>
+</p>
+
+---
+
+<a id="id4.9.2"></a>
+
+##### **Pay bill**
+
+_Logic Steps_
+
+1. Verify user token - Users MS
+
+```bash
+  GET /users/verify/${token}
+```
+
+2. Check user role is Admin - Users MS
+
+```bash
+  GET /users/verify/role/${id}
+```
+
+3. Pay bill - Ads MS
+
+```bash
+  PUT /payment/pay/${id}
+```
+
+_Mutation Example_
+
+```graphql
+mutation {
+  payBill(token: str!, id: int!) {}
+}
+```
+
+_Mutation Parameters_
+
+* `token` is user login token (string) **REQUIRED**.
+* `id` is bill id (int) **REQUIRED**.
+
+---
+
+<p>
+<p></p>
+<a style="color:white; background-color: gray; padding: 5px; border-radius: 8px;" href="#index">Go to Index ↑</a>
+<p></p>
+</p>
+
+---
+
+<a id="id4.9.2"></a>
+
+##### **Cancel bill**
+
+_Logic Steps_
+
+1. Verify user token - Users MS
+
+```bash
+  GET /users/verify/${token}
+```
+
+2. Check user role is Admin - Users MS
+
+```bash
+  GET /users/verify/role/${id}
+```
+
+3. Cancel bill - Ads MS
+
+```bash
+  PUT /payment/cancel/${id}
+```
+
+_Mutation Example_
+
+```graphql
+mutation {
+  cancelBill(token: str!, id: int!) {}
+}
+```
+
+_Mutation Parameters_
+
+* `token` is user login token (string) **REQUIRED**.
+* `id` is bill id (int) **REQUIRED**.
+
+---
+
+<p>
+<p></p>
+<a style="color:white; background-color: gray; padding: 5px; border-radius: 8px;" href="#index">Go to Index ↑</a>
+<p></p>
+</p>
+
+---
 
 </br>
 
@@ -2215,7 +3754,7 @@ mutation {
 
 <a id="id5.1.1"></a>
 
-**User**
+##### **User**
 
 ```graphql
 type User {
@@ -2236,7 +3775,7 @@ type User {
 
 <a id="id5.1.2"></a>
 
-**Country**
+##### **Country**
 
 ```graphql
 type Country {
@@ -2249,7 +3788,7 @@ type Country {
 
 <a id="id5.1.3"></a>
 
-**CreateUser**
+##### **CreateUser**
 
 ```graphql
 type CreateUser {
@@ -2263,7 +3802,7 @@ type CreateUser {
 
 <a id="id5.1.4"></a>
 
-**UpdateUser**
+##### **UpdateUser**
 
 ```graphql
 type UpdateUser {
@@ -2278,7 +3817,7 @@ type UpdateUser {
 
 <a id="id5.1.5"></a>
 
-**CreateCountry**
+##### **CreateCountry**
 
 ```graphql
 type CreateCountry {
@@ -2291,7 +3830,7 @@ type CreateCountry {
 
 <a id="id5.1.5"></a>
 
-**UpdateCountry**
+##### **UpdateCountry**
 
 ```graphql
 type CreateCountry {
@@ -2317,22 +3856,22 @@ type CreateCountry {
 
 <a id="id5.2.1"></a>
 
-**Like**
+##### **Like**
 
 ```graphql
 type Like {
   media_id: int!
   user_id: int!
   type: str! // 'MOV' | 'BOO' | 'SON' // Media type
-  rating: float
-  like_type: str! // 'LK' | 'DLK' | 'BLK' // Preference
+  like_type: str! // 'LK' | 'DLK' // Preference
   wishlist: boolean
+  rating: float
 }
 ```
 
 <a id="id5.2.2"></a>
 
-**LikeExtended**
+##### **LikeExtended**
 
 ```graphql
 type LikeExtended {
@@ -2343,7 +3882,7 @@ type LikeExtended {
 
 <a id="id5.2.3"></a>
 
-**Wishlist**
+##### **Wishlist**
 
 ```graphql
 type Wishlist {
@@ -2370,7 +3909,7 @@ type Wishlist {
 
 <a id="id5.3.1"></a>
 
-**Media**
+##### **Media**
 
 ```graphql
 type Media {
@@ -2381,6 +3920,104 @@ type Media {
 
 extend type Media {
   user_like: Like
+}
+```
+
+<a id="id5.3.2"></a>
+
+##### **CreateBook**
+
+```graphql
+type CreateBook {
+  title: str!
+  author: str!
+  genre: str!
+  pages: int
+  year: int
+}
+```
+
+<a id="id5.3.3"></a>
+
+##### **UpdateBook**
+
+```graphql
+type UpdateBook {
+  title: str
+  author: str
+  genre: str
+  pages: int
+  year: int
+}
+```
+
+<a id="id5.3.4"></a>
+
+##### **CreateMovie**
+
+```graphql
+type CreateMovie {
+  title: str
+  original_title: str! 
+  genre: str!
+  duration: str
+  director: str
+  release_date: str // timestamp string
+  cast: [str]
+  writers: [str]
+  seasons: int
+  episodes: int
+  awards: str
+}
+```
+
+<a id="id5.3.5"></a>
+
+##### **UpdateMovie**
+
+```graphql
+type UpdateMovie {
+  title: str
+  original_title: str 
+  genre: str
+  duration: str
+  director: str
+  release_date: str // timestamp string
+  cast: [str]
+  writers: [str]
+  seasons: int
+  episodes: int
+  awards: str
+}
+```
+
+<a id="id5.3.6"></a>
+
+##### **CreateSong**
+
+```graphql
+type CreateSong {
+  title: str!
+  artist: str!
+  genre: str!
+  album: str
+  year: int
+  duration: int
+}
+```
+
+<a id="id5.3.7"></a>
+
+##### **UpdateSong**
+
+```graphql
+type UpdateSong {
+  title: str
+  artist: str
+  genre: str
+  album: str
+  year: int
+  duration: int
 }
 ```
 
@@ -2400,7 +4037,7 @@ extend type Media {
 
 <a id="id5.4.1"></a>
 
-**Recommendation**
+##### **Recommendation**
 
 ```graphql
 type Recommendation {
@@ -2428,7 +4065,7 @@ type Recommendation {
 
 <a id="id5.5.1"></a>
 
-**Analysis**
+##### **Analysis**
 
 ```graphql
 type Analysis {
@@ -2441,7 +4078,7 @@ type Analysis {
 
 <a id="id5.5.2"></a>
 
-**GenderAnalysis**
+##### **GenderAnalysis**
 
 ```graphql
 type GenderAnalysis {
@@ -2454,7 +4091,7 @@ type GenderAnalysis {
 
 <a id="id5.5.3"></a>
 
-**NationalityAnalysis**
+##### **NationalityAnalysis**
 
 ```graphql
 type NationalityAnalysis {
@@ -2468,7 +4105,7 @@ type NationalityAnalysis {
 
 <a id="id5.5.4"></a>
 
-**AgeAnalysis**
+##### **AgeAnalysis**
 
 ```graphql
 type AgeAnalysis {
@@ -2482,7 +4119,7 @@ type AgeAnalysis {
 
 <a id="id5.5.5"></a>
 
-**CountLikes**
+##### **CountLikes**
 
 ```graphql
 type CountLikes {
@@ -2508,7 +4145,7 @@ type CountLikes {
 
 <a id="id5.6.1"></a>
 
-**Company**
+##### **Company**
 
 ```graphql
 type Company {
@@ -2520,7 +4157,7 @@ type Company {
 
 <a id="id5.6.2"></a>
 
-**Ad**
+##### **Ad**
 
 ```graphql
 type Ad {
@@ -2532,6 +4169,28 @@ type Ad {
   description: str!
   company: Company!
   published: boolean!
+}
+```
+
+<a id="id5.6.3"></a>
+
+##### **CreateCompany**
+
+```graphql
+type CreateCompany {
+  name: str!
+  email: str!
+}
+```
+
+<a id="id5.6.4"></a>
+
+##### **UpdateCompany**
+
+```graphql
+type UpdateCompany {
+  name: str
+  email: str
 }
 ```
 
@@ -2551,7 +4210,7 @@ type Ad {
 
 <a id="id5.7.1"></a>
 
-**Bill**
+##### **Bill**
 
 ```graphql
 type Bill {
@@ -2560,6 +4219,17 @@ type Bill {
   status: str! // "CREATED" | "PAID" |"CANCELED"
   amount: int!
   createdAt: str! // Timestamp string
+}
+```
+
+<a id="id5.7.2"></a>
+
+##### **CreateBill**
+
+```graphql
+type CreateBill {
+  id_ad: int!
+  amount: int!
 }
 ```
 
