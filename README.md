@@ -10,6 +10,8 @@ The base URL for our API Gateway is [http://localhost:8000/graphiql](http://loca
 
 Run and deploy project instruction on [Deployment](#deploy).
 
+<a id="index"></a>
+
 **API Reference Index**
 
 * [Authentication](#id1)
@@ -25,10 +27,9 @@ Run and deploy project instruction on [Deployment](#deploy).
     * [Get countries](#id3.2.1)
     * [Get country by id](#id3.2.2)
   * [Likes](#id3.3)
-    * [Get likes by user id](#id3.3.1)
-    * [Get dislikes by user id](#id3.3.2)
-    * [Get likes and dislikes by media id](#id3.3.3)
-    * [Get wishlist](#id3.3.4)
+    * [Get preferences by user id](#id3.3.1)
+    * [Get preferences by media id](#id3.3.2)
+    * [Get wishlist](#id3.3.3)
   * [Catalog](#id3.4)
     <!-- Si viene el user id, se añade info de likes del usuario  -->
     * [Get books](#id3.4.1) 
@@ -54,23 +55,23 @@ Run and deploy project instruction on [Deployment](#deploy).
     * [Sign up user with google](#id4.1.2)
     * [Verify user account](#id4.1.3)
     * [Forgot Password](#id4.1.4)
-    * [Update User](#id4.1.5)
-    * [Complete setup](#id4.1.6)
-    * [Delete User](#id4.1.7)
+    * [Change Password](#id4.1.5)
+    * [Update User](#id4.1.6)
+    * [Complete setup](#id4.1.7)
+    * [Delete User](#id4.1.8)
   * [Countries](#id4.2)
     * [Create country](#id4.2.1)
-    * [Update country](#id4.2.1)
-    * [Delete country](#id4.2.1)
-    * [Import countries data](#id4.2.1)
+    * [Update country](#id4.2.2)
+    * [Delete country](#id4.2.3)
+    * [Import countries data](#id4.2.4)
   * [Likes](#id4.3)
     * [Like media](#id4.3.1)
     * [Dislike media](#id4.3.2)
-    * [Delete like media](#id4.3.3)
-    * [Delete dislike media](#id4.3.4)
-    * [Rating media](#id4.3.5)
-    * [Update media rating](#id4.3.6)
-    * [Add media to wishlist](#id4.3.7)
-    * [Remove media from wishlist](#id4.3.8)
+    * [Delete like/dislike media](#id4.3.3)
+    * [Rating media](#id4.3.4)
+    * [Update media rating](#id4.3.5)
+    * [Add media to wishlist](#id4.3.6)
+    * [Remove media from wishlist](#id4.3.7)
   * [Catalog](#id4.4)
     * [Create book](#id4.4.1)
     * [Create movie](#id4.4.2)
@@ -105,9 +106,14 @@ Run and deploy project instruction on [Deployment](#deploy).
   * [Users Management](#id5.1)
     * [User](#id5.1.1)
     * [Country](#id5.1.2)
+    * [CreateUser](#id5.1.3)
+    * [UpdateUser](#id5.1.4)
+    * [CreateCountry](#id5.1.5)
+    * [UpdateCountry](#id5.1.6)
   * [Likes](#id5.2)
     * [Like](#id5.2.1)
     * [UserPreferences](#id5.2.2)
+    * [MediaPreferences](#id5.2.2)
     * [Wishlist](#id5.2.2)
   * [Catalog](#id5.3)
     * [Book](#id5.3.1)
@@ -121,8 +127,8 @@ Run and deploy project instruction on [Deployment](#deploy).
     * [Company](#id5.6.1)
     * [Ad](#id5.6.2)
   * [Payments](#id5.7)
-    * [Bill](#id5.7.2)
-    * [Payment](#id5.7.3)
+    * [Bill](#id5.7.1)
+    * [Payment](#id5.7.2)
 
 ***
 <br />
@@ -164,8 +170,6 @@ Content-Type: application/json
 
 #### User Management
 
----
-
 <a id="id3.1.1"></a>
 
 **Get user by user id**
@@ -202,9 +206,21 @@ query {
 }
 ```
 
+Parameters:
+* `token` is login token (string) **REQUIRED**.
+* `id` is user id (int) **REQUIRED**.
+
 _Query Type Response_
 
 [User](#id5.1.1) type.
+
+---
+
+<p>
+<p></p>
+<a style="color:white; background-color: gray; padding: 5px; border-radius: 8px;" href="#index">Go to Index ↑</a>
+<p></p>
+</p>
 
 ---
 
@@ -245,9 +261,21 @@ query {
 }
 ```
 
+Parameters:
+* `token` is login token (string) **REQUIRED**.
+* `email` is user email (string) **REQUIRED**.
+
 _Query Type Response_
 
 [User](#id5.1.1) type.
+
+---
+
+<p>
+<p></p>
+<a style="color:white; background-color: gray; padding: 5px; border-radius: 8px;" href="#index">Go to Index ↑</a>
+<p></p>
+</p>
 
 ---
 
@@ -293,15 +321,24 @@ query {
 }
 ```
 
-Note: 
-* `gender` is a enum string: "M", "F", "O", "P".
-* `Country` is the country id.
-* `low_age` is age range lower limit to filter.
-* `high_age` is age range upper limit to filter.
+Parameters:
+* `token` is login token (string) **REQUIRED**.
+* `gender` is a enum: "M", "F", "O", "P" (string).
+* `Country` is the country id (int).
+* `low_age` is age range lower limit to filter (int).
+* `high_age` is age range upper limit to filter (int).
 
 _Query Type Response_
 
 Array of [User](#id5.1.1) type.
+
+---
+
+<p>
+<p></p>
+<a style="color:white; background-color: gray; padding: 5px; border-radius: 8px;" href="#index">Go to Index ↑</a>
+<p></p>
+</p>
 
 ---
 
@@ -328,9 +365,21 @@ query {
 }
 ```
 
+Parameters:
+* `password` is user password (string) **REQUIRED**.
+* `email` is user email (string) **REQUIRED**.
+
 _Query Type Response_
 
 User token (string).
+
+---
+
+<p>
+<p></p>
+<a style="color:white; background-color: gray; padding: 5px; border-radius: 8px;" href="#index">Go to Index ↑</a>
+<p></p>
+</p>
 
 ---
 
@@ -357,9 +406,20 @@ query {
 }
 ```
 
+Parameters:
+* `googleToken` is user auth google token (string) **REQUIRED**.
+
 _Query Type Response_
 
 User token (string).
+
+---
+
+<p>
+<p></p>
+<a style="color:white; background-color: gray; padding: 5px; border-radius: 8px;" href="#index">Go to Index ↑</a>
+<p></p>
+</p>
 
 ---
 </br>
@@ -397,6 +457,14 @@ _Query Type Response_
 [Country](#id5.1.2) type.
 
 ---
+
+<p>
+<p></p>
+<a style="color:white; background-color: gray; padding: 5px; border-radius: 8px;" href="#index">Go to Index ↑</a>
+<p></p>
+</p>
+
+---
 <a id="id3.2.2"></a>
 
 **Get country by id**
@@ -421,12 +489,22 @@ query {
 }
 ```
 
+Parameters:
+* `id` is country id (int) **REQUIRED**.
+
 _Query Type Response_
 
 [Country](#id5.1.2) type.
 
 ---
-</br>
+
+<p>
+<p></p>
+<a style="color:white; background-color: gray; padding: 5px; border-radius: 8px;" href="#index">Go to Index ↑</a>
+<p></p>
+</p>
+
+---
 
 <a id="id3.3"></a>
 
@@ -446,8 +524,8 @@ _Logic Steps_
 
 2. Get likes by user id - Likes MS (only likes)
 
-```bash
-  GET /users/verify/${token}
+```bash //@todo
+  GET 
 ```
 
 _Query Example_
@@ -466,19 +544,586 @@ _Query Type Response_
 
 [Country](#id5.1.2) type.
 
----
-
 
 ---
+
+<p>
+<p></p>
+<a style="color:white; background-color: gray; padding: 5px; border-radius: 8px;" href="#index">Go to Index ↑</a>
+<p></p>
+</p>
+
+---
+
+<a id="id3.4"></a>
+
+#### Catalog
+
+<!-- @todo -->
+
+<a id="id3.5"></a>
+
+#### Recommendations
+
+<!-- @todo -->
+
+<a id="id3.6"></a>
+
+#### Analysis
+
+<!-- @todo -->
+
+<a id="id3.7"></a>
+
+#### Ads
+
+<!-- @todo -->
+
+
+<a id="id3.8"></a>
+
+#### Payments
+
+<!-- @todo -->
+
+
 </br>
 
 <a id="id4"></a>
 
 ### Mutations
 
+<a id="id4.1"></a>
+
+#### Users Management
+
+<a id="id4.1.1"></a>
+
+**Sign up user with email**
+
+_Logic Steps_
+
+1. Sign up User - Users MS
+
+```bash
+  POST /users
+```
+
+_Mutation Example_
+
+```graphql
+mutation {
+  signUpUser(user: CreateUser!) {
+    id //int
+  }
+}
+```
+
+_Mutation Parameters_
+
+* `user` is user create type input ([CreateUser](#id5.1.3)) **REQUIRED**.
+
+---
+
+<p>
+<p></p>
+<a style="color:white; background-color: gray; padding: 5px; border-radius: 8px;" href="#index">Go to Index ↑</a>
+<p></p>
+</p>
+
+---
+
+<a id="id4.1.2"></a>
+
+**Sign up user with google**
+
+_Logic Steps_
+
+1. Sign up User with google - Users MS
+
+```bash
+  POST /users/google
+```
+
+_Mutation Example_
+
+```graphql
+mutation {
+  signUpUserGoogle(g_token: str!) {
+    id //int
+  }
+}
+```
+
+_Mutation Parameters_
+
+* `g_token` is auth google user token (string) **REQUIRED**.
+
+---
+
+<p>
+<p></p>
+<a style="color:white; background-color: gray; padding: 5px; border-radius: 8px;" href="#index">Go to Index ↑</a>
+<p></p>
+</p>
+
+---
+
+<a id="id4.1.3"></a>
+
+**Verify user account**
+
+_Logic Steps_
+
+1. Confirm user - Users MS
+
+```bash
+  POST /users/verify
+```
+
+_Mutation Example_
+
+```graphql
+mutation {
+  verifyUser(email: str!, token: str!) {}
+}
+```
+
+_Mutation Parameters_
+
+* `email` is user email (string) **REQUIRED**.
+* `token` is user token sent by email (string) **REQUIRED**.
+
+---
+
+<p>
+<p></p>
+<a style="color:white; background-color: gray; padding: 5px; border-radius: 8px;" href="#index">Go to Index ↑</a>
+<p></p>
+</p>
+
+---
+
+<a id="id4.1.4"></a>
+
+**Forgot Password**
+
+_Logic Steps_
+
+1. Send forgot password token - Users MS
+
+```bash
+  POST /users/auth/forgot/${encodeURIComponent(email)}
+```
+
+2. Recover password from forgot - Users MS
+
+```bash
+  POST /users/auth/recover
+```
+
+_Mutation Example_
+
+```graphql
+query {
+  forgotPassword(email: str!) {}
+}
+
+mutation {
+  recoverPassword(email: str!, token: str!, new_pass: str!) {}
+}
+```
+
+_Mutation Parameters_
+
+* `email` is user email (string) **REQUIRED**.
+* `new password` is user new password (string) **REQUIRED**.
+* `token` is user token sent by email to change password (string) **REQUIRED**.
+
+---
+
+<p>
+<p></p>
+<a style="color:white; background-color: gray; padding: 5px; border-radius: 8px;" href="#index">Go to Index ↑</a>
+<p></p>
+</p>
+
+---
+
+<a id="id4.1.5"></a>
+
+**Change Password**
+
+_Logic Steps_
+
+1. Verify user token - Users MS
+
+```bash
+  GET /users/verify/${token}
+```
+
+2. Change password - Users MS
+
+```bash
+  POST /users/auth/change
+```
+
+_Mutation Example_
+
+```graphql
+mutation {
+  recoverPassword(token: str!, email: str!, pass: str!, new_pass: str!) {}
+}
+```
+
+_Mutation Parameters_
+
+* `email` is user email (string) **REQUIRED**.
+* `password` is user current password (string) **REQUIRED**.
+* `new password` is user new password (string) **REQUIRED**.
+* `token` is user login token (string) **REQUIRED**.
+
+---
+
+<p>
+<p></p>
+<a style="color:white; background-color: gray; padding: 5px; border-radius: 8px;" href="#index">Go to Index ↑</a>
+<p></p>
+</p>
+
+---
+
+<a id="id4.1.6"></a>
+
+**Update User**
+
+_Logic Steps_
+
+1. Verify user token - Users MS
+
+```bash
+  GET /users/verify/${token}
+```
+
+2. Update user - Users MS
+
+```bash
+  PUT /users/${id}
+```
+
+_Mutation Example_
+
+```graphql
+mutation {
+  updateUser(token: str!, id: int!, user: UpdateUser!) {}
+}
+```
+
+_Mutation Parameters_
+
+* `id` is user id (int) **REQUIRED**.
+* `token` is user login token (string) **REQUIRED**.
+* `user` is user update type input ([UpdateUser](#id5.1.4)) **REQUIRED**.
+
+---
+
+<p>
+<p></p>
+<a style="color:white; background-color: gray; padding: 5px; border-radius: 8px;" href="#index">Go to Index ↑</a>
+<p></p>
+</p>
+
+---
+
+<a id="id4.1.7"></a>
+
+**Complete Setup**
+
+_Logic Steps_
+
+1. Verify user token - Users MS
+
+```bash
+  GET /users/verify/${token}
+```
+
+2. Complete user setup - Users MS
+
+```bash
+  POST /users/setup/${id}
+```
+
+_Mutation Example_
+
+```graphql
+mutation {
+  completeSetup(token: str!, id: int!) {}
+}
+```
+
+_Mutation Parameters_
+
+* `id` is user id (int) **REQUIRED**.
+* `token` is user login token (string) **REQUIRED**.
+
+---
+
+<p>
+<p></p>
+<a style="color:white; background-color: gray; padding: 5px; border-radius: 8px;" href="#index">Go to Index ↑</a>
+<p></p>
+</p>
+
+---
+
+
+<a id="id4.1.8"></a>
+
+**Delete User**
+
+_Logic Steps_
+
+1. Verify user token - Users MS
+
+```bash
+  GET /users/verify/${token}
+```
+
+2. Delete user - Users MS
+
+```bash
+  DELETE /users/${id}
+```
+
+3. Delete user - Likes MS
+
+```bash
+  DELETE /likes/user/${id}
+```
+
+4. Delete user recommendations - Recommendations MS
+
+```bash
+  DELETE /recommendation/${id}
+```
+
+5. Delete all the user relations with ads - Ads MS
+
+```bash
+  DELETE /ads/user/${id}
+```
+
+_Mutation Example_
+
+```graphql
+mutation {
+  deleteUser(token: str!, id: int!) {}
+}
+```
+
+_Mutation Parameters_
+
+* `id` is user id (int) **REQUIRED**.
+* `token` is user login token (string) **REQUIRED**.
+
+---
+
+<p>
+<p></p>
+<a style="color:white; background-color: gray; padding: 5px; border-radius: 8px;" href="#index">Go to Index ↑</a>
+<p></p>
+</p>
+
+---
+
+<a id="id4.2"></a>
+
+#### Countries
+
+<a id="id4.2.1"></a>
+
+**Create Country**
+
+_Logic Steps_
+
+1. Create country - Users MS
+
+```bash
+  POST /countries
+```
+
+_Mutation Example_
+
+```graphql
+mutation {
+  createCountry(country: CreateCountry!) {
+    id // int
+  }
+}
+```
+
+_Mutation Parameters_
+
+* `country` is country create type input ([CreateCountry](#id5.1.5)) **REQUIRED**.
+
+---
+
+<p>
+<p></p>
+<a style="color:white; background-color: gray; padding: 5px; border-radius: 8px;" href="#index">Go to Index ↑</a>
+<p></p>
+</p>
+
+---
+
+<a id="id4.2.2"></a>
+
+**Update Country**
+
+_Logic Steps_
+
+1. Update country - Users MS
+
+```bash
+  PUT /countries/${id}
+```
+
+_Mutation Example_
+
+```graphql
+mutation {
+  updateCountry(id: int!, country: UpdateCountry!) {}
+}
+```
+
+_Mutation Parameters_
+
+* `id` is country id (int) **REQUIRED**.
+* `country` is country update type input ([UpdateCountry](#id5.1.6)) **REQUIRED**.
+
+---
+
+<p>
+<p></p>
+<a style="color:white; background-color: gray; padding: 5px; border-radius: 8px;" href="#index">Go to Index ↑</a>
+<p></p>
+</p>
+
+---
+
+<a id="id4.2.3"></a>
+
+**Delete Country**
+
+_Logic Steps_
+
+1. Delete country - Users MS
+
+```bash
+  PUT /countries/${id}
+```
+
+_Mutation Example_
+
+```graphql
+mutation {
+  deleteCountry(id: int!) {}
+}
+```
+
+_Mutation Parameters_
+
+* `id` is country id (int) **REQUIRED**.
+
+---
+
+<p>
+<p></p>
+<a style="color:white; background-color: gray; padding: 5px; border-radius: 8px;" href="#index">Go to Index ↑</a>
+<p></p>
+</p>
+
+---
+
+<a id="id4.2.4"></a>
+
+**Import countries data**
+
+_Logic Steps_
+
+1. Import countries data - Users MS
+
+```bash
+  PUT /countries
+```
+
+_Mutation Example_
+
+```graphql
+mutation {
+  importCountries() {}
+}
+```
+
+---
+
+<p>
+<p></p>
+<a style="color:white; background-color: gray; padding: 5px; border-radius: 8px;" href="#index">Go to Index ↑</a>
+<p></p>
+</p>
+
+---
+
+
+
+
+<a id="id4.3"></a>
+
+#### Likes
+
+<!-- @todo -->
+
+<a id="id4.4"></a>
+
+#### Catalog
+
+<!-- @todo -->
+
+<a id="id4.5"></a>
+
+#### Recommendations
+
+<!-- @todo -->
+
+<a id="id4.6"></a>
+
+#### Companies
+
+<!-- @todo -->
+
+<a id="id4.7"></a>
+
+#### Ads
+
 <!-- @todo -->
 
 
+<a id="id4.8"></a>
+
+#### Release
+
+<!-- @todo -->
+
+<a id="id4.9"></a>
+
+#### Payments
+
+<!-- @todo -->
+
+
+
+</br>
 
 <a id="id5"></a>
 
@@ -522,6 +1167,213 @@ type Country {
 }
 ```
 
+<a id="id5.1.3"></a>
+
+**CreateUser**
+
+```graphql
+type CreateUser {
+  firstname: str!
+  lastname: str!
+  email: str!
+  password: str!
+  role: bool! // 0 -> 'READER' and 1 -> 'ADMIN'
+}
+```
+
+<a id="id5.1.4"></a>
+
+**UpdateUser**
+
+```graphql
+type UpdateUser {
+  firstname: str
+  lastname: str
+  avatar: str
+  birthdate: str // string timestamp
+  gender: str // 'M' | 'F' | 'O' | 'P'
+  country: int
+}
+```
+
+<a id="id5.1.5"></a>
+
+**CreateCountry**
+
+```graphql
+type CreateCountry {
+  id: int!
+  name: str! // English name
+  code_2: str! //ISO 3166-1 alpha-2
+  code_3: str! //ISO 3166-1 alpha-3
+}
+```
+
+<a id="id5.1.5"></a>
+
+**UpdateCountry**
+
+```graphql
+type CreateCountry {
+  name: str? // English name
+  code_2: str? //ISO 3166-1 alpha-2
+  code_3: str? //ISO 3166-1 alpha-3
+}
+```
+
+---
+
+<p>
+<p></p>
+<a style="color:white; background-color: gray; padding: 5px; border-radius: 8px;" href="#index">Go to Index ↑</a>
+<p></p>
+</p>
+
+---
+
+<a id="id5.2"></a>
+
+#### Likes
+
+<a id="id5.2.1"></a>
+
+**Like**
+
+```graphql
+type Like {
+  
+}
+```
+
+---
+
+<p>
+<p></p>
+<a style="color:white; background-color: gray; padding: 5px; border-radius: 8px;" href="#index">Go to Index ↑</a>
+<p></p>
+</p>
+
+---
+
+<a id="id5.3"></a>
+
+#### Catalog
+
+<a id="id5.3.1"></a>
+
+**Book**
+
+```graphql
+type Book {
+  
+}
+```
+
+---
+
+<p>
+<p></p>
+<a style="color:white; background-color: gray; padding: 5px; border-radius: 8px;" href="#index">Go to Index ↑</a>
+<p></p>
+</p>
+
+---
+
+<a id="id5.4"></a>
+
+#### Recommendations
+
+<a id="id5.4.1"></a>
+
+**Recommendation**
+
+```graphql
+type Recommendation {
+  
+}
+```
+
+---
+
+<p>
+<p></p>
+<a style="color:white; background-color: gray; padding: 5px; border-radius: 8px;" href="#index">Go to Index ↑</a>
+<p></p>
+</p>
+
+---
+
+<a id="id5.5"></a>
+
+#### Analysis
+
+<a id="id5.5.1"></a>
+
+**Analysis**
+
+```graphql
+type Analysis {
+  
+}
+```
+
+---
+
+<p>
+<p></p>
+<a style="color:white; background-color: gray; padding: 5px; border-radius: 8px;" href="#index">Go to Index ↑</a>
+<p></p>
+</p>
+
+---
+
+<a id="id5.6"></a>
+
+#### Release
+
+<a id="id5.6.1"></a>
+
+**Company**
+
+```graphql
+type Company {
+  
+}
+```
+
+---
+
+<p>
+<p></p>
+<a style="color:white; background-color: gray; padding: 5px; border-radius: 8px;" href="#index">Go to Index ↑</a>
+<p></p>
+</p>
+
+---
+
+<a id="id5.7"></a>
+
+#### Payments
+
+<a id="id5.7.1"></a>
+
+**Bill**
+
+```graphql
+type Bill {
+  
+}
+```
+
+---
+
+<p>
+<p></p>
+<a style="color:white; background-color: gray; padding: 5px; border-radius: 8px;" href="#index">Go to Index ↑</a>
+<p></p>
+</p>
+
+
 ***
 <br />
 <br />
@@ -563,3 +1415,13 @@ If it's the first time run
 ```bash
   ./init.sh && make run
 ```
+
+---
+
+<p>
+<p></p>
+<a style="color:white; background-color: gray; padding: 5px; border-radius: 8px;" href="#index">Go to Index ↑</a>
+<p></p>
+</p>
+
+***
