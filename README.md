@@ -23,7 +23,7 @@ Run and deploy project instruction on [Deployment](#deploy).
     * [Login with google](#id3.1.5)
   * [Countries](#id3.2)
     * [Get countries](#id3.2.1)
-    * [Get country by id](#id3.2.1)
+    * [Get country by id](#id3.2.2)
   * [Likes](#id3.3)
     * [Get likes by user id](#id3.3.1)
     * [Get dislikes by user id](#id3.3.2)
@@ -164,6 +164,8 @@ Content-Type: application/json
 
 #### User Management
 
+---
+
 <a id="id3.1.1"></a>
 
 **Get user by user id**
@@ -182,7 +184,7 @@ _Logic Steps_
   GET /users/${id}
 ```
 
-2. Get country by id - Users MS
+3. Get country by id - Users MS
 
 ```bash
   GET /countries/${id}
@@ -192,9 +194,9 @@ _Query Example_
 
 ```graphql
 query {
-  userByID(id: int!) {
+  userByID(token: str!, id: int!) {
     """
-    User Type atributes
+    User Type attributes
     """
   }
 }
@@ -202,8 +204,9 @@ query {
 
 _Query Type Response_
 
-[User](#id5.1.1)
+[User](#id5.1.1) type.
 
+---
 
 
 <a id="id3.1.2"></a>
@@ -224,7 +227,7 @@ _Logic Steps_
   GET /users/email/${email}
 ```
 
-2. Get country by id - Users MS
+3. Get country by id - Users MS
 
 ```bash
   GET /countries/${id}
@@ -234,9 +237,9 @@ _Query Example_
 
 ```graphql
 query {
-  userByEmail(email: str!) {
+  userByEmail(token: str!, email: str!) {
     """
-    User Type atributes
+    User Type attributes
     """
   }
 }
@@ -244,9 +247,9 @@ query {
 
 _Query Type Response_
 
-[User](#id5.1.1)
+[User](#id5.1.1) type.
 
-
+---
 
 <a id="id3.1.3"></a>
 
@@ -266,7 +269,7 @@ _Logic Steps_
   GET /users?...
 ```
 
-2. Get country by id for each user - Users MS
+3. Get country by id for each user - Users MS
 
 ```bash
   GET /countries/${id}
@@ -276,9 +279,114 @@ _Query Example_
 
 ```graphql
 query {
-  allUsers(email: str!) { //TODO ! parameters
+  allUsers(
+    token: str!,
+    gender: str,
+    country: int,
+    low_age: int,
+    high_age: int
+  ) {
     """
-    Array of User Type atributes
+    Array of User Type attributes
+    """
+  }
+}
+```
+
+Note: 
+* `gender` is a enum string: "M", "F", "O", "P".
+* `Country` is the country id.
+* `low_age` is age range lower limit to filter.
+* `high_age` is age range upper limit to filter.
+
+_Query Type Response_
+
+Array of [User](#id5.1.1) type.
+
+---
+
+
+<a id="id3.1.4"></a>
+
+**Login with email**
+
+_Logic Steps_
+
+1. Login with email - Users MS
+
+```bash
+  POST /users/login
+```
+
+_Query Example_
+
+```graphql
+query {
+  loginWithEmail(email: str!, password: str!) {
+    token
+  }
+}
+```
+
+_Query Type Response_
+
+User token (string).
+
+---
+
+
+<a id="id3.1.5"></a>
+
+**Login with google**
+
+_Logic Steps_
+
+1. Login with google - Users MS
+
+```bash
+  POST /users/login
+```
+
+_Query Example_
+
+```graphql
+query {
+  loginWithGoogle(googleToken: str!) {
+    token
+  }
+}
+```
+
+_Query Type Response_
+
+User token (string).
+
+---
+</br>
+
+<a id="id3.2"></a>
+
+#### Countries
+
+<a id="id3.2.1"></a>
+
+**Get countries**
+
+_Logic Steps_
+
+1. Get countries - Users MS
+
+```bash
+  GET /countries
+```
+
+_Query Example_
+
+```graphql
+query {
+  allCountries() {
+    """
+    Array of Country Type attributes
     """
   }
 }
@@ -286,11 +394,85 @@ query {
 
 _Query Type Response_
 
-[User](#id5.1.1)
+[Country](#id5.1.2) type.
+
+---
+<a id="id3.2.2"></a>
+
+**Get country by id**
+
+_Logic Steps_
+
+1. Get country by id - Users MS
+
+```bash
+  GET /countries/${id}
+```
+
+_Query Example_
+
+```graphql
+query {
+  countryByID(id: int!) {
+    """
+    Country Type attributes
+    """
+  }
+}
+```
+
+_Query Type Response_
+
+[Country](#id5.1.2) type.
+
+---
+</br>
+
+<a id="id3.3"></a>
+
+#### Likes
+
+<a id="id3.3.1"></a>
+
+**Get likes by user id**
+
+_Logic Steps_
+
+1. Verify user token - Users MS
+
+```bash
+  GET /users/verify/${token}
+```
+
+2. Get likes by user id - Likes MS (only likes)
+
+```bash
+  GET /users/verify/${token}
+```
+
+_Query Example_
+
+```graphql
+query {
+  likesByUser(token: str!, user_id: int!) {
+    """
+    Country Type attributes
+    """
+  }
+}
+```
+
+_Query Type Response_
+
+[Country](#id5.1.2) type.
+
+---
 
 
+---
+</br>
 
-<a id="id3.1"></a>
+<a id="id4"></a>
 
 ### Mutations
 
