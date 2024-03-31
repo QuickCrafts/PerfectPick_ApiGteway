@@ -30,8 +30,8 @@ Run and deploy project instruction on [Deployment](#deploy).
     * [Get preferences by user id](#id3.3.1)
     * [Get preferences by media id](#id3.3.2)
     * [Get wishlist](#id3.3.3)
+    * [Get rating by media id](#id3.3.4)
   * [Catalog](#id3.4)
-    <!-- Si viene el user id, se añade info de likes del usuario  -->
     * [Get books](#id3.4.1) 
     * [Get movies](#id3.4.2)
     * [Get songs](#id3.4.3)
@@ -44,11 +44,14 @@ Run and deploy project instruction on [Deployment](#deploy).
     * [Generate analysis](#id3.6.1)
   * [Ads](#id3.7)
     * [Get user ads](#id3.7.1)
-    * [Get ads by company](#id3.7.2)
+    * [Get company ads](#id3.7.2)
+    * [Get ads](#id3.7.3)
+    * [Get companies](#id3.7.4)
   * [Payments](#id3.8)
     * [Get bills by company](#id3.8.1)
     * [Get bills by ad](#id3.8.2)
-    * [Get payments](#id3.8.3)
+    * [Get bills](#id3.8.3)
+    * [Get bill by id](#id3.8.4)
 * [Mutations](#id4)
   * [Users Management](#id4.1)
     * [Sign up user with email](#id4.1.1)
@@ -112,23 +115,23 @@ Run and deploy project instruction on [Deployment](#deploy).
     * [UpdateCountry](#id5.1.6)
   * [Likes](#id5.2)
     * [Like](#id5.2.1)
-    * [UserPreferences](#id5.2.2)
-    * [MediaPreferences](#id5.2.2)
-    * [Wishlist](#id5.2.2)
+    * [LikeExtended](#id5.2.2)
+    * [Wishlist](#id5.2.3)
   * [Catalog](#id5.3)
-    * [Book](#id5.3.1)
-    * [Song](#id5.3.2)
-    * [Movie](#id5.3.3)
+    * [Media](#id5.3.1)
   * [Recommendations](#id5.4)
     * [Recommendation](#id5.4.1)
   * [Analysis](#id5.5)
     * [Analysis](#id5.5.1)
+    * [GenderAnalysis](#id5.5.2)
+    * [NationalityAnalysis](#id5.5.3)
+    * [AgeAnalysis](#id5.5.4)
+    * [CountLikes](#id5.5.5)
   * [Release](#id5.6)
     * [Company](#id5.6.1)
     * [Ad](#id5.6.2)
   * [Payments](#id5.7)
     * [Bill](#id5.7.1)
-    * [Payment](#id5.7.2)
 
 ***
 <br />
@@ -522,27 +525,189 @@ _Logic Steps_
   GET /users/verify/${token}
 ```
 
-2. Get likes by user id - Likes MS (only likes)
+2. Get likes by user id - Likes MS
 
-```bash //@todo
-  GET 
+```bash
+  GET /likes/user/${id}?...
 ```
 
 _Query Example_
 
 ```graphql
 query {
-  likesByUser(token: str!, user_id: int!) {
+  likesByUserId(token: str!, id: int!, preference: str, media: str) {
     """
-    Country Type attributes
+    Array of Like Type attributes
     """
   }
 }
 ```
 
+Parameters:
+* `token` is login token (string) **REQUIRED**.
+* `id` is user id (int) **REQUIRED**.
+* `preference` is preference type enum: "LK" | "DLK" (string).
+* `media` is media type enum: "MOV" | "SON" | "BOO" (string).
+
 _Query Type Response_
 
-[Country](#id5.1.2) type.
+Array of [Like](#id5.2.1) type.
+
+
+---
+
+<p>
+<p></p>
+<a style="color:white; background-color: gray; padding: 5px; border-radius: 8px;" href="#index">Go to Index ↑</a>
+<p></p>
+</p>
+
+---
+
+<a id="id3.3.2"></a>
+
+**Get likes by media id**
+
+_Logic Steps_
+
+1. Get likes by media id - Likes MS
+
+```bash
+  GET /likes/media/${id}?...
+```
+
+_Query Example_
+
+```graphql
+query {
+  likesByMediaId(id: int!, media: str!, preference: str) {
+    """
+    Array of Like Type attributes
+    """
+  }
+}
+```
+
+Parameters:
+* `id` is media id (int) **REQUIRED**.
+* `media` is media type enum: "MOV" | "SON" | "BOO" (string) **REQUIRED**.
+* `preference` is preference type enum: "LK" | "DLK" (string).
+
+_Query Type Response_
+
+Array of [Like](#id5.2.1) type.
+
+
+---
+
+<p>
+<p></p>
+<a style="color:white; background-color: gray; padding: 5px; border-radius: 8px;" href="#index">Go to Index ↑</a>
+<p></p>
+</p>
+
+---
+
+
+<a id="id3.3.3"></a>
+
+**Get wishlist by user id**
+
+_Logic Steps_
+
+1. Verify user token - Users MS
+
+```bash
+  GET /users/verify/${token}
+```
+
+2. Get wishlist by user id - Likes MS
+
+```bash
+  GET /likes/wishlist/${id}
+```
+
+3. Get media info - Catalog MS
+
+* Get movies info
+
+```bash
+  GET /movies/${id}
+```
+
+* Get books info
+
+```bash
+  GET /books/${id}
+```
+
+* Get songs info
+
+```bash
+  GET /songs/${id}
+```
+
+_Query Example_
+
+```graphql
+query {
+  wishlistByUserId(token: str!, id: int!, media: str) {
+    """
+    Wishlist Type attributes
+    """
+  }
+}
+```
+
+Parameters:
+* `token` is login token (string) **REQUIRED**.
+* `id` is user id (int) **REQUIRED**.
+* `media` is media type enum: "MOV" | "SON" | "BOO" (string).
+
+_Query Type Response_
+
+[Wishlist](#id5.2.3) type.
+
+
+---
+
+<p>
+<p></p>
+<a style="color:white; background-color: gray; padding: 5px; border-radius: 8px;" href="#index">Go to Index ↑</a>
+<p></p>
+</p>
+
+---
+
+<a id="id3.3.4"></a>
+
+**Get rating by media id**
+
+_Logic Steps_
+
+1. Get rating by media id - Likes MS
+
+```bash
+  GET /likes/average/${id}?...
+```
+
+_Query Example_
+
+```graphql
+query {
+  ratingByMediaId(id: int!, media: str!) {
+    rating
+  }
+}
+```
+
+Parameters:
+* `id` is media id (int) **REQUIRED**.
+* `media` is media type enum: "MOV" | "SON" | "BOO" (string) **REQUIRED**.
+
+_Query Type Response_
+
+* `rating` is media average rating (float).
 
 
 ---
@@ -559,32 +724,947 @@ _Query Type Response_
 
 #### Catalog
 
-<!-- @todo -->
+<a id="id3.4.1"></a>
+
+**Get Books**
+
+_Logic Steps_
+
+
+
+2. Get books - Catalog MS
+
+```bash
+  GET /books
+```
+
+3. *If user id inside request, get preference relation of each book - Likes MS
+
+```bash
+  GET /likes/media/${id}?media_type=BOO
+```
+
+_Query Example_
+
+```graphql
+query {
+  allBooks(token: string, id: int) {
+    """
+    Array of Media Type attributes
+    """
+  }
+}
+```
+
+Parameters:
+* `token` is login token (string).
+* `id` is user id (int).
+
+_Query Type Response_
+
+Array of [Media](#id5.3.1) type. If user id inside request, media type will have user like relation too.
+
+
+---
+
+<p>
+<p></p>
+<a style="color:white; background-color: gray; padding: 5px; border-radius: 8px;" href="#index">Go to Index ↑</a>
+<p></p>
+</p>
+
+---
+
+
+<a id="id3.4.2"></a>
+
+**Get movies**
+
+_Logic Steps_
+
+1. *If user id inside request, verify user token - Users MS
+
+```bash
+  GET /users/verify/${token}
+```
+
+2. Get movies - Catalog MS
+
+```bash
+  GET /movies
+```
+
+3. *If user id inside request, get preference relation of each movie - Likes MS
+
+```bash
+  GET /likes/media/${id}?media_type=MOV
+```
+
+_Query Example_
+
+```graphql
+query {
+  allMovies(token: string, id: int) {
+    """
+    Array of Media Type attributes
+    """
+  }
+}
+```
+
+Parameters:
+* `token` is login token (string).
+* `id` is user id (int).
+
+_Query Type Response_
+
+Array of [Media](#id5.3.1) type. If user id inside request, media type will have user like relation too.
+
+
+---
+
+<p>
+<p></p>
+<a style="color:white; background-color: gray; padding: 5px; border-radius: 8px;" href="#index">Go to Index ↑</a>
+<p></p>
+</p>
+
+---
+
+
+<a id="id3.4.3"></a>
+
+**Get songs**
+
+_Logic Steps_
+
+1. *If user id inside request, verify user token - Users MS
+
+```bash
+  GET /users/verify/${token}
+```
+
+2. Get songs - Catalog MS
+
+```bash
+  GET /songs
+```
+
+3. *If user id inside request, get preference relation of each song - Likes MS
+
+```bash
+  GET /likes/media/${id}?media_type=SON
+```
+
+_Query Example_
+
+```graphql
+query {
+  allSongs(token: string, id: int) {
+    """
+    Array of Media Type attributes
+    """
+  }
+}
+```
+
+Parameters:
+* `token` is login token (string).
+* `id` is user id (int).
+
+_Query Type Response_
+
+Array of [Media](#id5.3.1) type. If user id inside request, media type will have user like relation too.
+
+
+---
+
+<p>
+<p></p>
+<a style="color:white; background-color: gray; padding: 5px; border-radius: 8px;" href="#index">Go to Index ↑</a>
+<p></p>
+</p>
+
+---
+
+<a id="id3.4.4"></a>
+
+**Get Book by id**
+
+_Logic Steps_
+
+1. *If user id inside request, verify user token - Users MS
+
+```bash
+  GET /users/verify/${token}
+```
+
+2. Get book by id - Catalog MS
+
+```bash
+  GET /books/${media_id}
+```
+
+3. *If user id inside request, get preference by media id and user id - Likes MS
+
+```bash
+  GET /likes/preference?user_id=${user_id}&media_id=${media_id}&media_type=BOO
+```
+
+_Query Example_
+
+```graphql
+query {
+  bookById(media_id: int!, token: string, user_id: int) {
+    """
+    Media Type attributes
+    """
+  }
+}
+```
+
+Parameters:
+* `media_id` is media id (int) **REQUIRED**.
+* `token` is login token (string).
+* `user_id` is user id (int).
+
+_Query Type Response_
+
+[Media](#id5.3.1) type. If user id inside request, media type will have user like relation too.
+
+---
+
+<p>
+<p></p>
+<a style="color:white; background-color: gray; padding: 5px; border-radius: 8px;" href="#index">Go to Index ↑</a>
+<p></p>
+</p>
+
+---
+
+<a id="id3.4.5"></a>
+
+**Get movie by id**
+
+_Logic Steps_
+
+1. *If user id inside request, verify user token - Users MS
+
+```bash
+  GET /users/verify/${token}
+```
+
+2. Get movie by id - Catalog MS
+
+```bash
+  GET /movies/${media_id}
+```
+
+3. *If user id inside request, get preference by media id and user id - Likes MS
+
+```bash
+  GET /likes/preference?user_id=${user_id}&media_id=${media_id}&media_type=MOV
+```
+
+_Query Example_
+
+```graphql
+query {
+  movieById(media_id: int!, token: string, user_id: int) {
+    """
+    Media Type attributes
+    """
+  }
+}
+```
+
+Parameters:
+* `media_id` is media id (int) **REQUIRED**.
+* `token` is login token (string).
+* `user_id` is user id (int).
+
+_Query Type Response_
+
+[Media](#id5.3.1) type. If user id inside request, media type will have user like relation too.
+
+---
+
+<p>
+<p></p>
+<a style="color:white; background-color: gray; padding: 5px; border-radius: 8px;" href="#index">Go to Index ↑</a>
+<p></p>
+</p>
+
+---
+
+
+<a id="id3.4.6"></a>
+
+**Get song by id**
+
+_Logic Steps_
+
+1. *If user id inside request, verify user token - Users MS
+
+```bash
+  GET /users/verify/${token}
+```
+
+2. Get song by id - Catalog MS
+
+```bash
+  GET /songs/${media_id}
+```
+
+3. *If user id inside request, get preference by media id and user id - Likes MS
+
+```bash
+  GET /likes/preference?user_id=${user_id}&media_id=${media_id}&media_type=SON
+```
+
+_Query Example_
+
+```graphql
+query {
+  songById(media_id: int!, token: string, user_id: int) {
+    """
+    Media Type attributes
+    """
+  }
+}
+```
+
+Parameters:
+* `media_id` is media id (int) **REQUIRED**.
+* `token` is login token (string).
+* `user_id` is user id (int).
+
+_Query Type Response_
+
+[Media](#id5.3.1) type. If user id inside request, media type will have user like relation too.
+
+---
+
+<p>
+<p></p>
+<a style="color:white; background-color: gray; padding: 5px; border-radius: 8px;" href="#index">Go to Index ↑</a>
+<p></p>
+</p>
+
+---
 
 <a id="id3.5"></a>
 
 #### Recommendations
 
-<!-- @todo -->
+<a id="id3.5.1"></a>
+
+**Get recommend**
+
+_Logic Steps_
+
+1. Verify user token - Users MS
+
+```bash
+  GET /users/verify/${token}
+```
+
+2. Get user recommendation - Recommendation MS
+
+```bash
+  GET /recommendation/${id}
+```
+
+3. Get media info of the recommend- Catalog MS
+
+* Get movie info of each movie recommended
+
+```bash
+  GET /movies/${id}
+```
+
+* Get book info of each book recommended
+
+```bash
+  GET /books/${id}
+```
+
+* Get song info of each song recommended
+
+```bash
+  GET /songs/${id}
+```
+
+_Query Example_
+
+```graphql
+query {
+  recommendByUserId(token: string!, id: int!) {
+    """
+    Recommend Type attributes
+    """
+  }
+}
+```
+
+Parameters:
+* `id` is user id (int) **REQUIRED**.
+* `token` is login token (string) **REQUIRED**.
+
+_Query Type Response_
+
+[Recommendation](#id5.4.1) type.
+
+---
+
+<p>
+<p></p>
+<a style="color:white; background-color: gray; padding: 5px; border-radius: 8px;" href="#index">Go to Index ↑</a>
+<p></p>
+</p>
+
+---
 
 <a id="id3.6"></a>
 
 #### Analysis
 
-<!-- @todo -->
+<a id="id3.6.1"></a>
+
+**Generate Analysis**
+
+_Logic Steps_
+
+1. Verify user token - Users MS
+
+```bash
+  GET /users/verify/${token}
+```
+
+2. Check user role is Admin - Users MS
+
+```bash
+  GET /users/verify/role/${user_id}
+```
+
+2. Get all users - Users MS
+
+```bash
+  GET /users
+```
+
+3. Get all countries - Users MS
+
+```bash
+  GET /countries
+```
+
+4. Get likes related with media id - Likes MS
+
+```bash
+  GET /likes/media/${media_id}?media_type=${type}
+```
+
+5. Get analysis by a given media - Ads MS
+
+```bash
+  GET /ads/analysis
+```
+
+_Query Example_
+
+```graphql
+query {
+  getAnalysis(token: string!, user_id: int!, media_id: int!, type: str!) {
+    """
+    Analysis Type attributes
+    """
+  }
+}
+```
+
+Parameters:
+* `media_id` is media id (int) **REQUIRED**.
+* `type` is media type enum: 'MOV' | 'SON' | 'BOO' (string) **REQUIRED**.
+* `token` is login token (string) **REQUIRED**.
+* `user_id` is user id (int) **REQUIRED**.
+
+_Query Type Response_
+
+[Analysis](#id5.5.1) type.
+
+---
+
+<p>
+<p></p>
+<a style="color:white; background-color: gray; padding: 5px; border-radius: 8px;" href="#index">Go to Index ↑</a>
+<p></p>
+</p>
+
+---
 
 <a id="id3.7"></a>
 
 #### Ads
 
-<!-- @todo -->
+<a id="id3.7.1"></a>
+
+**Get user ads**
+
+_Logic Steps_
+
+1. Verify user token - Users MS
+
+```bash
+  GET /users/verify/${token}
+```
+
+2. Get ads active for a given user - Ads MS
+
+```bash
+  GET /ads/active/${id}
+```
+
+_Query Example_
+
+```graphql
+query {
+  getUserAds(token: string!, id: int!) {
+    """
+    Array of Ad Type attributes
+    """
+  }
+}
+```
+
+Parameters:
+* `token` is login token (string) **REQUIRED**.
+* `id` is user id (int) **REQUIRED**.
+
+_Query Type Response_
+
+Array of [Ad](#id5.6.2) type.
+
+---
+
+<p>
+<p></p>
+<a style="color:white; background-color: gray; padding: 5px; border-radius: 8px;" href="#index">Go to Index ↑</a>
+<p></p>
+</p>
+
+---
+
+
+<a id="id3.7.2"></a>
+
+**Get company ads**
+
+_Logic Steps_
+
+1. Verify user token - Users MS
+
+```bash
+  GET /users/verify/${token}
+```
+
+2. Check user role is Admin - Users MS
+
+```bash
+  GET /users/verify/role/${id}
+```
+
+3. Get ads by company id - Ads MS
+
+```bash
+  GET /ads?company=${com_id}
+```
+
+_Query Example_
+
+```graphql
+query {
+  getCompanyAds(token: string!, id: int!, com_id: int!) {
+    """
+    Array of Ad Type attributes
+    """
+  }
+}
+```
+
+Parameters:
+* `token` is login token (string) **REQUIRED**.
+* `id` is user id (int) **REQUIRED**.
+* `com_id` is company id (int) **REQUIRED**.
+
+_Query Type Response_
+
+Array of [Ad](#id5.6.2) type.
+
+---
+
+<p>
+<p></p>
+<a style="color:white; background-color: gray; padding: 5px; border-radius: 8px;" href="#index">Go to Index ↑</a>
+<p></p>
+</p>
+
+---
+
+<a id="id3.7.3"></a>
+
+**Get ads**
+
+Get ads by company, published state or start and end date.
+
+If exact_date = true is given and start date is given, it returns all the ads that start_date == start date given. If exact_date = true is given and end date is given, it returns all the ads that end_date == end date given.
+
+If only start date is given, it returns all the ads that start_date >= start date given. If only end date is given, it returns all the ads that end_date <= end date given.
+
+_Logic Steps_
+
+1. Verify user token - Users MS
+
+```bash
+  GET /users/verify/${token}
+```
+
+2. Check user role is Admin - Users MS
+
+```bash
+  GET /users/verify/role/${id}
+```
+
+3. Get ads filtered - Ads MS
+
+```bash
+  GET /ads?...
+```
+
+_Query Example_
+
+```graphql
+query {
+  allAds(
+    token: string!,
+    id: int!,
+    exact_date: boolean,
+    start_date: str,
+    end_date: str,
+    published: boolean
+  ) {
+    """
+    Array of Ad Type attributes
+    """
+  }
+}
+```
+
+Parameters:
+* `token` is login token (string) **REQUIRED**.
+* `id` is user id (int) **REQUIRED**.
+* `exact_date` is exact start or end date ad (boolean).
+* `start_date` is start date timestamp (string).
+* `end_date` is end date timestamp (string).
+* `published` is a published ad? yes or no (boolean).
+
+_Query Type Response_
+
+Array of [Ad](#id5.6.2) type.
+
+---
+
+<p>
+<p></p>
+<a style="color:white; background-color: gray; padding: 5px; border-radius: 8px;" href="#index">Go to Index ↑</a>
+<p></p>
+</p>
+
+---
+
+<a id="id3.7.4"></a>
+
+**Get companies**
+
+_Logic Steps_
+
+1. Verify user token - Users MS
+
+```bash
+  GET /users/verify/${token}
+```
+
+2. Check user role is Admin - Users MS
+
+```bash
+  GET /users/verify/role/${id}
+```
+
+3. Get companies - Ads MS
+
+```bash
+  GET /companies
+```
+
+_Query Example_
+
+```graphql
+query {
+  allCompanies(token: string!, id: int!) {
+    """
+    Array of Company Type attributes
+    """
+  }
+}
+```
+
+Parameters:
+* `token` is login token (string) **REQUIRED**.
+* `id` is user id (int) **REQUIRED**.
+
+_Query Type Response_
+
+Array of [Company](#id5.6.1) type.
+
+---
+
+<p>
+<p></p>
+<a style="color:white; background-color: gray; padding: 5px; border-radius: 8px;" href="#index">Go to Index ↑</a>
+<p></p>
+</p>
+
+---
 
 
 <a id="id3.8"></a>
 
 #### Payments
 
-<!-- @todo -->
+<a id="id3.8.1"></a>
+
+**Get bills by company**
+
+_Logic Steps_
+
+1. Verify user token - Users MS
+
+```bash
+  GET /users/verify/${token}
+```
+
+2. Check user role is Admin - Users MS
+
+```bash
+  GET /users/verify/role/${id}
+```
+
+3. Get bills filtered by company id - Ads MS
+
+```bash
+  GET /payment?company_id=${com_id}
+```
+
+_Query Example_
+
+```graphql
+query {
+  billsByCompanyId(token: string!, id: int!, com_id: int!) {
+    """
+    Array of Bill Type attributes
+    """
+  }
+}
+```
+
+Parameters:
+* `token` is login token (string) **REQUIRED**.
+* `id` is user id (int) **REQUIRED**.
+* `com_id` is company id (int) **REQUIRED**.
+
+_Query Type Response_
+
+Array of [Bill](#id5.7.1) type.
+
+---
+
+<p>
+<p></p>
+<a style="color:white; background-color: gray; padding: 5px; border-radius: 8px;" href="#index">Go to Index ↑</a>
+<p></p>
+</p>
+
+---
+
+<a id="id3.8.2"></a>
+
+**Get bills by ad**
+
+_Logic Steps_
+
+1. Verify user token - Users MS
+
+```bash
+  GET /users/verify/${token}
+```
+
+2. Check user role is Admin - Users MS
+
+```bash
+  GET /users/verify/role/${id}
+```
+
+3. Get bills filtered by ad id - Ads MS
+
+```bash
+  GET /payment?ad_id=${ad_id}
+```
+
+_Query Example_
+
+```graphql
+query {
+  billsByAdId(token: string!, id: int!, ad_id: int!) {
+    """
+    Array of Bill Type attributes
+    """
+  }
+}
+```
+
+Parameters:
+* `token` is login token (string) **REQUIRED**.
+* `id` is user id (int) **REQUIRED**.
+* `ad_id` is ad id (int) **REQUIRED**.
+
+_Query Type Response_
+
+Array of [Bill](#id5.7.1) type.
+
+---
+
+<p>
+<p></p>
+<a style="color:white; background-color: gray; padding: 5px; border-radius: 8px;" href="#index">Go to Index ↑</a>
+<p></p>
+</p>
+
+---
+
+
+<a id="id3.8.3"></a>
+
+**Get bills**
+
+_Logic Steps_
+
+1. Verify user token - Users MS
+
+```bash
+  GET /users/verify/${token}
+```
+
+2. Check user role is Admin - Users MS
+
+```bash
+  GET /users/verify/role/${id}
+```
+
+3. Get bills filtered - Ads MS
+
+```bash
+  GET /payment?...
+```
+
+_Query Example_
+
+```graphql
+query {
+  allBills(
+    token: string!,
+    id: int!,
+    status: str
+  ) {
+    """
+    Array of Bill Type attributes
+    """
+  }
+}
+```
+
+Parameters:
+* `token` is login token (string) **REQUIRED**.
+* `id` is user id (int) **REQUIRED**.
+* `status` is bill status enum: "CREATED" | "PAID" |"CANCELED" (string).
+
+_Query Type Response_
+
+Array of [Bill](#id5.7.1) type.
+
+---
+
+<p>
+<p></p>
+<a style="color:white; background-color: gray; padding: 5px; border-radius: 8px;" href="#index">Go to Index ↑</a>
+<p></p>
+</p>
+
+---
+
+<a id="id3.8.2"></a>
+
+**Get bill by id**
+
+_Logic Steps_
+
+1. Verify user token - Users MS
+
+```bash
+  GET /users/verify/${token}
+```
+
+2. Check user role is Admin - Users MS
+
+```bash
+  GET /users/verify/role/${id}
+```
+
+3. Get bill by id - Ads MS
+
+```bash
+  GET /payment/${bill_id}
+```
+
+_Query Example_
+
+```graphql
+query {
+  billById(token: string!, id: int!, bill_id: int!) {
+    """
+    Bill Type attributes
+    """
+  }
+}
+```
+
+Parameters:
+* `token` is login token (string) **REQUIRED**.
+* `id` is user id (int) **REQUIRED**.
+* `bill_id` is bill id (int) **REQUIRED**.
+
+_Query Type Response_
+
+[Bill](#id5.7.1) type.
+
+---
+
+<p>
+<p></p>
+<a style="color:white; background-color: gray; padding: 5px; border-radius: 8px;" href="#index">Go to Index ↑</a>
+<p></p>
+</p>
+
+---
 
 
 </br>
@@ -1241,7 +2321,36 @@ type CreateCountry {
 
 ```graphql
 type Like {
-  
+  media_id: int!
+  user_id: int!
+  type: str! // 'MOV' | 'BOO' | 'SON' // Media type
+  rating: float
+  like_type: str! // 'LK' | 'DLK' | 'BLK' // Preference
+  wishlist: boolean
+}
+```
+
+<a id="id5.2.2"></a>
+
+**LikeExtended**
+
+```graphql
+type LikeExtended {
+  like: Like!
+  media: Media!
+}
+```
+
+<a id="id5.2.3"></a>
+
+**Wishlist**
+
+```graphql
+type Wishlist {
+  user_id: int!
+  movies: [LikeExtended!]
+  songs: [LikeExtended!]
+  books: [LikeExtended!]
 }
 ```
 
@@ -1261,11 +2370,17 @@ type Like {
 
 <a id="id5.3.1"></a>
 
-**Book**
+**Media**
 
 ```graphql
-type Book {
-  
+type Media {
+  type: str! // 'MOV' | 'BOO' | 'SON' // Media type
+  id: int!
+  info: JSON!
+}
+
+extend type Media {
+  user_like: Like
 }
 ```
 
@@ -1289,7 +2404,11 @@ type Book {
 
 ```graphql
 type Recommendation {
-  
+  id_recommend: int!
+  id_user: int!
+  movies: [Media!]!
+  books: [Media!]!
+  songs: [Media!]!
 }
 ```
 
@@ -1313,7 +2432,63 @@ type Recommendation {
 
 ```graphql
 type Analysis {
-  
+  media_id: int!
+  gender: GenderAnalysis!
+  nationality: [NationalityAnalysis!]!
+  age: [AgeAnalysis!]!
+}
+```
+
+<a id="id5.5.2"></a>
+
+**GenderAnalysis**
+
+```graphql
+type GenderAnalysis {
+  f: CountLikes!
+  m: CountLikes!
+  o: CountLikes!
+  p: CountLikes!
+}
+```
+
+<a id="id5.5.3"></a>
+
+**NationalityAnalysis**
+
+```graphql
+type NationalityAnalysis {
+  country_id: int!
+  country_name: int!
+  like: CountLikes!
+  code_2: str! //ISO 3166-1 alpha-2
+  code_3: str! //ISO 3166-1 alpha-3
+}
+```
+
+<a id="id5.5.4"></a>
+
+**AgeAnalysis**
+
+```graphql
+type AgeAnalysis {
+  range: str!
+  lower_age: int!
+  upper_age: int!
+  total: int! // Total users inside the range
+  like_info: CountLikes!
+}
+```
+
+<a id="id5.5.5"></a>
+
+**CountLikes**
+
+```graphql
+type CountLikes {
+  lk_total: int! // Total of users with type "Like"
+  dlk_total: int! // Total of users with type "dislike"
+  avr_rating: int! // Average rating of likes
 }
 ```
 
@@ -1337,7 +2512,26 @@ type Analysis {
 
 ```graphql
 type Company {
-  
+  company_id: int!
+  name: str!
+  email: str!
+}
+```
+
+<a id="id5.6.2"></a>
+
+**Ad**
+
+```graphql
+type Ad {
+  ad_id: int!
+  name: str!
+  ad_url: str! // Bucket url to display ad image
+  start_date: str! //timestamp of start date to publish ad
+  end_date: str! //timestamp of end date to publish ad
+  description: str!
+  company: Company!
+  published: boolean!
 }
 ```
 
@@ -1361,7 +2555,11 @@ type Company {
 
 ```graphql
 type Bill {
-  
+  id: int!
+  id_ad: int!
+  status: str! // "CREATED" | "PAID" |"CANCELED"
+  amount: int!
+  createdAt: str! // Timestamp string
 }
 ```
 
