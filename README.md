@@ -749,10 +749,10 @@ _Logic Steps_
   GET /books
 ```
 
-3. *If user id inside request, get preference relation of each book - Likes MS
+3. *If user id inside request, get preference by media id and user id - Likes MS
 
 ```bash
-  GET /likes/media/${id}?media_type=BOO
+  GET /likes/preference?user_id=${user_id}&media_id=${media_id}&media_type=BOO
 ```
 
 _Query Example_
@@ -805,10 +805,10 @@ _Logic Steps_
   GET /movies
 ```
 
-3. *If user id inside request, get preference relation of each movie - Likes MS
+3. *If user id inside request, get preference by media id and user id - Likes MS
 
 ```bash
-  GET /likes/media/${id}?media_type=MOV
+  GET /likes/preference?user_id=${user_id}&media_id=${media_id}&media_type=MOV
 ```
 
 _Query Example_
@@ -861,10 +861,10 @@ _Logic Steps_
   GET /songs
 ```
 
-3. *If user id inside request, get preference relation of each song - Likes MS
+3. *If user id inside request, get preference by media id and user id - Likes MS
 
 ```bash
-  GET /likes/media/${id}?media_type=SON
+  GET /likes/preference?user_id=${user_id}&media_id=${media_id}&media_type=SON
 ```
 
 _Query Example_
