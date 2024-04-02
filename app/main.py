@@ -5,7 +5,7 @@ from starlette.middleware.cors import CORSMiddleware
 from app.GraphQL.Companies.companiesMutations import CreateCompany, UpdatedCompany
 from app.GraphQL.Companies.companiesType import CompanyId
 from app.GraphQL.Likes.likesMutations import DeletePreference, DislikeMedia, LikeMedia, RatingMedia
-from app.GraphQL.Likes.likesQueries import GetLikesById, GetLikesByMedia, GetWishlistByUserId
+from app.GraphQL.Likes.likesQueries import GetLikesById, GetLikesByMedia, GetRatingByMediaId, GetWishlistByUserId
 from app.GraphQL.Likes.likesTypes import Like
 from app.GraphQL.Release.releaseMutations import PublishAd
 from app.GraphQL.Users.userQueries import GetAllUsers, GetSingleUser, EmailLogin, GoogleLogin
@@ -190,34 +190,43 @@ class Query:
 
         
     @strawberry.field
-    async def LikesByUserId (self, userToken:str, id:int, preference:str, media:str) -> list[Like]:
+    async def LikesByUserId (self, userToken:str, id:int) -> list[Like]:
         isTokenValid = await Authenticate(userToken)
         if isTokenValid["isTokenValid"] == False:
             raise ValueError("Invalid Token, user not authorized")
-        potentialData = await GetLikesById(id=id, media=media, preference=preference)
+        potentialData = await GetLikesById(id=id, media=None, preference=None)
         if potentialData is None:
             raise ValueError("Likes not found")
         else:
             return potentialData
         
     @strawberry.field
-    async def LikesByMediaId(self, id:int, media:str, preference:str) -> list[Like]:
-        potentialData = await GetLikesByMedia(id=id, media=media, preference=preference)
+    async def LikesByMediaId(self, id:str, media:str) -> list[Like]:
+        potentialData = await GetLikesByMedia(id=id, media=media, preference=None)
         if potentialData is None:
             raise ValueError("Likes not found")
         else:
             return potentialData
         
     @strawberry.field
-    async def wishlistByUserId(self, token:str, id:int, media:str) -> list[Like]:
+    async def wishlistByUserId(self, token:str, id:int) -> list[Like]:
         isTokenValid = await Authenticate(token)
         if isTokenValid["isTokenValid"] == False:
             raise ValueError("Invalid Token, user not authorized")
-        potentialData = await GetWishlistByUserId(userID=id, media=media)
+        potentialData = await GetWishlistByUserId(userID=id)
         if potentialData is None:
             raise ValueError("Wishlist not found")
         else:
             return potentialData
+        
+    @strawberry.field
+    async def ratingByMediaId(self, id:str, media: str) -> list[Like]:
+        potentialData = await GetRatingByMediaId(id=id, media=media)
+        if potentialData is None:
+            raise ValueError("Average rating not found")
+        else:
+            return potentialData
+        
 @strawberry.type
 class Mutation:
     @strawberry.field
@@ -534,6 +543,7 @@ class Mutation:
             raise ValueError("Like not created")
         else:
             return like
+
     async def dislikeMedia(self,token:str, id:int, mediaId:int, type:str) -> Other:
         isTokenValid = await Authenticate(token)
         if isTokenValid["isTokenValid"] == False:

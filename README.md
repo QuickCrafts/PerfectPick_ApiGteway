@@ -3860,12 +3860,10 @@ type CreateCountry {
 
 ```graphql
 type Like {
-  media_id: int!
+  media_id: str!
   user_id: int!
   type: str! // 'MOV' | 'BOO' | 'SON' // Media type
   like_type: str! // 'LK' | 'DLK' // Preference
-  wishlist: boolean
-  rating: float
 }
 ```
 
