@@ -36,6 +36,15 @@ async def DislikeMedia(id:int, mediaId:str, type:str) -> Other:
             return Other(message=response.text)
         else:
             return None
+        
+async def DeletePreference(id:int, mediaId:str, type:str) -> Other:
+    api_url = os.environ.get("LIKES_URL")
+    like_url = api_url + "/likes"
+    async with httpx.AsyncClient() as client:
+        response = await client.delete(like_url, headers={"Content-Type": "application/json"}, json={"id": id, "mediaId": mediaId, "type": type})
+        if response.status_code == 500:
+            return None
+        return Other(message=response.text)
 
 async def DeletePreference(id:int, mediaId:str, type:str) -> Other:
     api_url = os.environ.get("LIKES_URL")

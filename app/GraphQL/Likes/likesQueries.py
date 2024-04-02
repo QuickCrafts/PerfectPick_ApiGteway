@@ -18,11 +18,22 @@ async def GetLikesById(id: int, media:str = None, preference: str = None) -> lis
         response = await client.get(likes_url)
         data = response.json()
         likes = []
-        for like_data in data["movies"]:
+        movies = []
+        songs = []
+        books = []
+
+        if isinstance(data["movies"], list):
+            movies = data["movies"]
+        if isinstance(data["songs"], list):
+            songs = data["songs"]
+        if isinstance(data["books"], list):
+            books = data["books"]
+        
+        for like_data in movies:
             likes.append(Like(user_id=like_data["user_id"], media_id=like_data["media_id"], type=like_data["type"], like_type=like_data["like_type"]))
-        for like_data in data["songs"]:
+        for like_data in songs:
             likes.append(Like(user_id=like_data["user_id"], media_id=like_data["media_id"], type=like_data["type"], like_type=like_data["like_type"]))
-        for like_data in data["books"]:
+        for like_data in books:
             likes.append(Like(user_id=like_data["user_id"], media_id=like_data["media_id"], type=like_data["type"], like_type=like_data["like_type"]))
 
         return likes
@@ -38,7 +49,12 @@ async def GetLikesByMedia(id:str , media:str, preference: str = None) -> list[Li
         response = await client.get(likes_url)
         data = response.json()
         likes = []
-        for like_data in data["likes"]:
+        likes_response = []
+
+        if isinstance(data["likes"], list):
+            likes_response = data["likes"]
+
+        for like_data in likes_response:
             likes.append(Like(user_id=like_data["user_id"], media_id=like_data["media_id"], type=like_data["type"], like_type=like_data["like_type"]))
 
         return likes
@@ -52,16 +68,26 @@ async def GetWishlistByUserId(userID: int) -> list[Like]:
         movies = []
         songs = []
         books = []
+        movies_response = []
+        songs_response = []
+        books_response = []
+
+        if isinstance(data["movies"], list):
+            movies_response = data["movies"]
+        if isinstance(data["songs"], list):
+            songs_response = data["songs"]
+        if isinstance(data["books"], list):
+            books_response = data["books"]
         
-        for like_data in data["movies"]:
+        for like_data in movies_response:
             like = Like(user_id=like_data["user_id"], media_id=like_data["media_id"], type=like_data["type"], like_type=like_data["like_type"])
             media = Media(type=like_data["type"], id=like_data["media_id"], info="") ## @todo
             movies.append(LikeExtended(like=like, media=media))
-        for like_data in data["songs"]:
+        for like_data in songs_response:
             like = Like(user_id=like_data["user_id"], media_id=like_data["media_id"], type=like_data["type"], like_type=like_data["like_type"])
             media = Media(type=like_data["type"], id=like_data["media_id"], info="") ## @todo
             songs.append(LikeExtended(like=like, media=media))
-        for like_data in data["books"]:
+        for like_data in books_response:
             like = Like(user_id=like_data["user_id"], media_id=like_data["media_id"], type=like_data["type"], like_type=like_data["like_type"])
             media = Media(type=like_data["type"], id=like_data["media_id"], info="") ## @todo
             books.append(LikeExtended(like=like, media=media))
