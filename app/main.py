@@ -7,6 +7,11 @@ from app.GraphQL.Users.userMutations import RegisterUser, VerifyAccount, Forgott
 from app.GraphQL.Users.userTypes import User, UserToken, GoogleURL, Other, Country
 from dotenv import load_dotenv
 from app.utils import Authenticate, CheckAdmin
+from app.GraphQL.Recommendations.recommendationQueries import fetch_recommendations
+from app.GraphQL.Recommendations.recommendationTypes import MovieRecommendation
+from producers.recommendations_producer import send_recommendation
+from app.GraphQL.Recommendations.recommendationMutations import CreateRecommendationInput, RecommendationResponse, fetch_likes
+
 
 load_dotenv()
 
@@ -71,6 +76,10 @@ class Query:
     async def forgotPassword(self, email: str) -> Other:
         await PasswordReset(email=email)
         return Other(message="Email sent to reset password")
+    
+    @strawberry.field
+    async def getRecommendationsForUser(self, user_id: str) -> MovieRecommendation:
+        return await fetch_recommendations(user_id)
 
 @strawberry.type
 class Mutation:
@@ -174,6 +183,14 @@ class Mutation:
         message = await ImportCountryData()
         return message
         
+    @strawberry.field   
+    async def create_recommendation(input: CreateRecommendationInput) -> RecommendationResponse:
+        likes_data = await fetch_likes(input.user_id)
+        if likes_data:
+            send_recommendation(likes_data)
+            return RecommendationResponse(message="Recommendation process started successfully.")
+        else:
+            return RecommendationResponse(message="Failed to fetch likes data or send to RabbitMQ.")
 
 
 schema = strawberry.Schema(query=Query, mutation=Mutation)
