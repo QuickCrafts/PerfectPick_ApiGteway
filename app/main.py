@@ -2,6 +2,14 @@ import strawberry
 from fastapi import FastAPI
 from strawberry.asgi import GraphQL
 from starlette.middleware.cors import CORSMiddleware
+from app.GraphQL.Companies.companiesMutations import CreateCompany, UpdatedCompany
+from app.GraphQL.Companies.companiesType import CompanyId
+from app.GraphQL.Release.releaseMutations import PublishAd
+from app.GraphQL.Users.userQueries import GetAllUsers, GetSingleUser, EmailLogin, GoogleLogin
+from app.GraphQL.Users.userMutations import RegisterUser, VerifyAccount
+from app.GraphQL.Users.userTypes import User, UserToken, GoogleURL, Other
+from app.GraphQL.Payments.paymentsQueries import GetAllPayments, GetPaymentByAd, GetPaymentByCompany, GetSinglePayment
+from app.GraphQL.Payments.paymentType import Payment
 from app.GraphQL.Users.userQueries import GetAllUsers, GetSingleUser,GetSingleUserByEmail ,EmailLogin, GoogleLogin, GetAllCountries,GetSingleCountry, PasswordReset
 from app.GraphQL.Users.userMutations import RegisterUser, VerifyAccount, ForgottenPasswordReset, ChangePassword, UpdateUser, CompleteSetup, DeleteUser, CreateCountry, UpdateCountry, DeleteCountry, ImportCountryData
 from app.GraphQL.Users.userTypes import User, UserToken, GoogleURL, Other, Country
@@ -10,6 +18,11 @@ from app.GraphQL.Ads.adsMutations import CreateAd, UpdateAd, DeleteAd
 from app.GraphQL.Ads.adsTypes import Ad, AdMessage, Company
 from dotenv import load_dotenv
 from app.utils import Authenticate, CheckAdmin
+from app.GraphQL.Recommendations.recommendationQueries import fetch_recommendations
+from app.GraphQL.Recommendations.recommendationTypes import MovieRecommendation
+from producers.recommendations_producer import send_recommendation
+from app.GraphQL.Recommendations.recommendationMutations import CreateRecommendationInput, RecommendationResponse, fetch_likes
+
 
 load_dotenv()
 
@@ -74,6 +87,63 @@ class Query:
     async def forgotPassword(self, email: str) -> Other:
         await PasswordReset(email=email)
         return Other(message="Email sent to reset password")
+    
+    @strawberry.field
+    async def getRecommendationsForUser(self, user_id: str) -> MovieRecommendation:
+        return await fetch_recommendations(user_id)
+
+        
+    @strawberry.field
+    async def BillsByCompanyId (self,  userToken: str ,companyID: int) -> list[Payment]:
+        isTokenValid = await Authenticate(userToken)
+        if isTokenValid["isTokenValid"] == False:
+            raise ValueError("Invalid Token, user not authorized")
+        if isTokenValid["role"] != 1:
+            raise ValueError("User not authorized")
+        potentialData = await GetPaymentByCompany(companyID=companyID)
+        if potentialData is None:
+            raise ValueError("Bills not found")
+        else:
+            return potentialData
+    
+    @strawberry.field
+    async def BillsByAdId (self,  userToken: str ,adID: int) -> list[Payment]:
+        isTokenValid = await Authenticate(userToken)
+        if isTokenValid["isTokenValid"] == False:
+            raise ValueError("Invalid Token, user not authorized")
+        if isTokenValid["role"] != 1:
+            raise ValueError("User not authorized")
+        potentialData = await GetPaymentByAd(adID=adID)
+        if potentialData is None:
+            raise ValueError("Bills not found")
+        else:
+            return potentialData
+
+    @strawberry.field
+    async def AllBills (self,  userToken: str) -> list[Payment]:
+        isTokenValid = await Authenticate(userToken)
+        if isTokenValid["isTokenValid"] == False:
+            raise ValueError("Invalid Token, user not authorized")
+        if isTokenValid["role"] != 1:
+            raise ValueError("User not authorized")
+        potentialData = await GetAllPayments()
+        if potentialData is None:
+            raise ValueError("Bills not found")
+        else:
+            return potentialData
+    
+    @strawberry.field
+    async def BillById (self,  userToken: str, idPayment: int) -> Payment:
+        isTokenValid = await Authenticate(userToken)
+        if isTokenValid["isTokenValid"] == False:
+            raise ValueError("Invalid Token, user not authorized")
+        if isTokenValid["role"] != 1:
+            raise ValueError("User not authorized")
+        potentialData = await GetSinglePayment(idPayment=idPayment)
+        if potentialData is None:
+            raise ValueError("Bill not found")
+        else:
+            return potentialData
     
     @strawberry.field
     async def getUserAds(self, token:str ,id: int) -> list[Ad]:
@@ -211,24 +281,52 @@ class Mutation:
             raise ValueError("User is not an admin")
         message = await ImportCountryData()
         return message
-    
-    @strawberry.field
-    async def createAd(self, id_ad:int, name_ad:str, ad_url:str, start_date_ad:str, end_date_ad:str, description_ad:str, id_company:int, published_ad:bool) -> AdMessage:
-        message = await CreateAd(id_ad=id_ad, name_ad=name_ad, ad_url=ad_url, start_date_ad=start_date_ad, end_date_ad=end_date_ad, description_ad=description_ad, id_company=id_company, published_ad=published_ad)
-        return message
-    
-    @strawberry.field
-    async def updateAd(self, id_ad:int, name_ad:str=None, ad_url:str=None, start_date_ad:str=None, end_date_ad:str=None, description_ad:str=None, id_company:int=None, published_ad:bool=None) -> AdMessage:
-        message = await UpdateAd(id_ad=id_ad, name_ad=name_ad, ad_url=ad_url, start_date_ad=start_date_ad, end_date_ad=end_date_ad, description_ad=description_ad, id_company=id_company, published_ad=published_ad)
-        return message
-    
-    @strawberry.field
-    async def deleteAd(self, id_ad:int) -> AdMessage:
-        message = await DeleteAd(id_ad=id)
-        return message
         
-        
+    @strawberry.field   
+    async def create_recommendation(input: CreateRecommendationInput) -> RecommendationResponse:
+        likes_data = await fetch_likes(input.user_id)
+        if likes_data:
+            send_recommendation(likes_data)
+            return RecommendationResponse(message="Recommendation process started successfully.")
+        else:
+            return RecommendationResponse(message="Failed to fetch likes data or send to RabbitMQ.")
 
+    @strawberry.field
+    async def CreateCompany(self,userToken: str, name: str, email: str) -> CompanyId:
+        isTokenValid = await Authenticate(userToken)
+        if isTokenValid["isTokenValid"] == False:
+            raise ValueError("Invalid Token, user not authorized")
+        if isTokenValid["role"] != 1:
+            raise ValueError("User not authorized")
+        company = await CreateCompany(name=name, email=email)
+        if company is None:
+            raise ValueError("Company not created")
+        else:
+            return company
+
+    @strawberry.field
+    async def UpdateCompany (self, userToken: str, companyId:int, name: str, email: str) -> CompanyId:
+        isTokenValid = await Authenticate(userToken)
+        if isTokenValid["isTokenValid"] == False:
+            raise ValueError("Invalid Token, user not authorized")
+        if isTokenValid["role"] != 1:
+            raise ValueError("User not authorized")
+        company = await UpdatedCompany(companyId=companyId, name=name, email=email)
+        if company is None:
+            raise ValueError("Company not updated")
+        else:
+            return company
+        
+    @strawberry.field
+    async def PublishAd(self, userToken: str, adID: int) -> Other:
+        isTokenValid = await Authenticate(userToken)
+        if isTokenValid["isTokenValid"] == False:
+            raise ValueError("Invalid Token, user not authorized")
+        if isTokenValid["role"] != 1:
+            raise ValueError("User not authorized")
+        publish = await PublishAd(adID=adID)
+        
+        return publish
 
 schema = strawberry.Schema(query=Query, mutation=Mutation)
 

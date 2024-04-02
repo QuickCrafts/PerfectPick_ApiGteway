@@ -29,4 +29,5 @@ async def CheckAdmin(id:int):
         return{
             "isAdmin": isAdmin,
             "Code": response.status_code,
+            "role": response.text.role,
         }
