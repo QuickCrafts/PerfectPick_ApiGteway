@@ -184,7 +184,10 @@ class Mutation:
         return message
         
     @strawberry.field   
-    async def create_recommendation(input: CreateRecommendationInput) -> RecommendationResponse:
+    async def create_recommendation(self,token:str,input: CreateRecommendationInput) -> RecommendationResponse:
+        isTokenValid = await Authenticate(token)
+        if isTokenValid["isTokenValid"] == False:
+            raise ValueError("Invalid Token, user not authorized")
         likes_data = await fetch_likes(input.user_id)
         if likes_data:
             send_recommendation(likes_data)
