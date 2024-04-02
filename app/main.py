@@ -666,7 +666,7 @@ class Mutation:
 
     
     @strawberry.field
-    async def likeMedia(self,token:str, id:int, mediaId:int, type:str) -> Other:
+    async def likeMedia(self,token:str, id:int, mediaId:str, type:str) -> Other:
         isTokenValid = await Authenticate(token)
         if isTokenValid["isTokenValid"] == False:
             raise ValueError("Invalid Token, user not authorized")
@@ -676,7 +676,7 @@ class Mutation:
         else:
             return like
 
-    async def dislikeMedia(self,token:str, id:int, mediaId:int, type:str) -> Other:
+    async def dislikeMedia(self,token:str, id:int, mediaId:str, type:str) -> Other:
         isTokenValid = await Authenticate(token)
         if isTokenValid["isTokenValid"] == False:
             raise ValueError("Invalid Token, user not authorized")
@@ -686,7 +686,7 @@ class Mutation:
         else:
             return dislike
     
-    async def deletePreference(self,token:str, id:int, mediaId:int, type:str) -> Other:
+    async def deletePreference(self,token:str, id:int, mediaId:str, type:str) -> Other:
         isTokenValid = await Authenticate(token)
         if isTokenValid["isTokenValid"] == False:
             raise ValueError("Invalid Token, user not authorized")
@@ -696,7 +696,7 @@ class Mutation:
         else:
             return delete
     
-    async def ratingMedia(self,token:str, id:int, mediaId:int, type:str, rating:int) -> Other:
+    async def ratingMedia(self,token:str, id:int, mediaId:str, type:str, rating:int) -> Other:
         isTokenValid = await Authenticate(token)
         if isTokenValid["isTokenValid"] == False:
             raise ValueError("Invalid Token, user not authorized")

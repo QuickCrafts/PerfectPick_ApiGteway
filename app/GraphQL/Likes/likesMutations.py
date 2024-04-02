@@ -3,7 +3,7 @@ import os
 
 from app.GraphQL.Users.userTypes import Other
 
-async def LikeMedia(id:int, mediaId:int, type:str) -> Other:
+async def LikeMedia(id:int, mediaId:str, type:str) -> Other:
     api_url = os.environ.get("LIKES_URL")
     like_url = api_url + "/likes"
     async with httpx.AsyncClient() as client:
@@ -20,7 +20,7 @@ async def LikeMedia(id:int, mediaId:int, type:str) -> Other:
         else:
             return None
 
-async def DislikeMedia(id:int, mediaId:int, type:str) -> Other:
+async def DislikeMedia(id:int, mediaId:str, type:str) -> Other:
     api_url = os.environ.get("LIKES_URL")
     like_url = api_url + "/likes"
     async with httpx.AsyncClient() as client:
@@ -37,7 +37,7 @@ async def DislikeMedia(id:int, mediaId:int, type:str) -> Other:
         else:
             return None
 
-async def DeletePreference(id:int, mediaId:int, type:str) -> Other:
+async def DeletePreference(id:int, mediaId:str, type:str) -> Other:
     api_url = os.environ.get("LIKES_URL")
     like_url = api_url + "/likes"
     async with httpx.AsyncClient() as client:
@@ -46,7 +46,7 @@ async def DeletePreference(id:int, mediaId:int, type:str) -> Other:
             return None
         return Other(message=response.text)
 
-async def RatingMedia(id:int, mediaId:int, type:str, rating:int) -> Other:
+async def RatingMedia(id:int, mediaId:str, type:str, rating:int) -> Other:
     api_url = os.environ.get("LIKES_URL")
     like_url = api_url + "/likes/rate" + str(mediaId)
     async with httpx.AsyncClient() as client:
