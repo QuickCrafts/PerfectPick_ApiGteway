@@ -4,7 +4,7 @@ import json
 def send_recommendation(recommendation_data):
     try:
         # Establish a connection to RabbitMQ
-        connection = pika.BlockingConnection(pika.ConnectionParameters(host='localhost', port=5672))
+        connection = pika.BlockingConnection(pika.ConnectionParameters(host='rabbitmq', port=5672))
         channel = connection.channel()
 
         # Declare the queue

@@ -7,6 +7,14 @@ from app.GraphQL.Users.userMutations import RegisterUser, VerifyAccount
 from app.GraphQL.Users.userTypes import User, UserToken, GoogleURL, Other
 from dotenv import load_dotenv
 from app.utils import Authenticate
+from app.GraphQL.Recommendations.recommendationQueries import fetch_recommendations
+from app.GraphQL.Recommendations.recommendationTypes import MovieRecommendation
+from producers.recommendations_producer import send_recommendation
+from app.GraphQL.Recommendations.recommendationMutations import CreateRecommendationInput, RecommendationResponse, fetch_likes
+
+
+
+
 
 load_dotenv()
 
@@ -47,6 +55,10 @@ class Query:
         else:
             return userToken
         
+    @strawberry.field
+    async def getRecommendationsForUser(self, user_id: str) -> MovieRecommendation:
+        return await fetch_recommendations(user_id)
+        
 @strawberry.type
 class Mutation:
     @strawberry.field
@@ -64,10 +76,18 @@ class Mutation:
             raise ValueError("User not found")
         else:
             return message
-        
+
+    @strawberry.field   
+    async def create_recommendation(input: CreateRecommendationInput) -> RecommendationResponse:
+        likes_data = await fetch_likes(input.user_id)
+        if likes_data:
+            send_recommendation(likes_data)
+            return RecommendationResponse(message="Recommendation process started successfully.")
+        else:
+            return RecommendationResponse(message="Failed to fetch likes data or send to RabbitMQ.")
 
 
-        
+      
 
 
 schema = strawberry.Schema(query=Query, mutation=Mutation)
