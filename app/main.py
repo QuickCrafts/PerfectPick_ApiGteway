@@ -12,10 +12,14 @@ from app.GraphQL.Users.userQueries import GetAllUsers, GetSingleUser, EmailLogin
 from app.GraphQL.Users.userMutations import RegisterUser, VerifyAccount
 from app.GraphQL.Users.userTypes import User, UserToken, GoogleURL, Other
 from app.GraphQL.Payments.paymentsQueries import GetAllPayments, GetPaymentByAd, GetPaymentByCompany, GetSinglePayment
+from app.GraphQL.Payments.paymentsMutations import CreateBill, PayBill, CancelBill
 from app.GraphQL.Payments.paymentType import Payment
 from app.GraphQL.Users.userQueries import GetAllUsers, GetSingleUser,GetSingleUserByEmail ,EmailLogin, GoogleLogin, GetAllCountries,GetSingleCountry, PasswordReset
 from app.GraphQL.Users.userMutations import RegisterUser, VerifyAccount, ForgottenPasswordReset, ChangePassword, UpdateUser, CompleteSetup, DeleteUser, CreateCountry, UpdateCountry, DeleteCountry, ImportCountryData
 from app.GraphQL.Users.userTypes import User, UserToken, GoogleURL, Other, Country
+from app.GraphQL.Ads.adsQueries import GetUserAds, GetCompanyAds, GetCompanies
+from app.GraphQL.Ads.adsMutations import CreateAd, UpdateAd, DeleteAd
+from app.GraphQL.Ads.adsTypes import Ad, AdMessage, Company
 from dotenv import load_dotenv
 from app.utils import Authenticate, CheckAdmin
 from app.GraphQL.Recommendations.recommendationQueries import fetch_recommendations
@@ -144,6 +148,42 @@ class Query:
             raise ValueError("Bill not found")
         else:
             return potentialData
+    
+    @strawberry.field
+    async def getUserAds(self, token:str ,id: int) -> list[Ad]:
+        isTokenValid = await Authenticate(token)
+        if isTokenValid["isTokenValid"] == False:
+            raise ValueError("Invalid Token, user not authorized")
+        ads = await GetUserAds(id=id)
+        if ads is None:
+            raise ValueError("Ads not found")
+        else:
+            return ads
+        
+    @strawberry.field
+    async def getCompanyAds(self, token:str,id:int ,com_id: int) -> list[Ad]:
+        isTokenValid = await Authenticate(token)
+        if isTokenValid["isTokenValid"] == False:
+            raise ValueError("Invalid Token, user not authorized")
+        isAdmin = await CheckAdmin(id=id)
+        if isAdmin["isAdmin"] == False:
+            raise ValueError("User is not an admin")
+        ads = await GetCompanyAds(com_id=com_id)
+        if ads is None:
+            raise ValueError("Ads not found")
+        else:
+            return ads
+        
+    @strawberry.field
+    async def getCompanies(self, token:str, id: int) -> list[Company]:
+        isTokenValid = await Authenticate(token)
+        if isTokenValid["isTokenValid"] == False:
+            raise ValueError("Invalid Token, user not authorized")
+        isAdmin = await CheckAdmin(id=id)
+        if isAdmin["isAdmin"] == False:
+            raise ValueError("User is not an admin")
+        return await GetCompanies()
+
         
     @strawberry.field
     async def LikesByUserId (self, userToken:str, id:int, preference:str, media:str) -> list[Like]:
@@ -321,6 +361,65 @@ class Mutation:
         publish = await PublishAd(adID=adID)
         
         return publish
+    
+    @strawberry.field
+    async def createAd(self,token:str, id:int, id_ad:int, name_ad:str, ad_url:str, start_date_ad:str, end_date_ad:str, description_ad:str, id_company:int, published_ad:bool) -> AdMessage:
+        isTokenValid = await Authenticate(token)
+        if isTokenValid["isTokenValid"] == False:
+            raise ValueError("Invalid Token, user not authorized")
+        isAdmin = await CheckAdmin(id=id)
+        if isAdmin["isAdmin"] == False:
+            raise ValueError("User is not an admin")
+        message = await CreateAd(id_ad=id_ad, name_ad=name_ad, ad_url=ad_url, start_date_ad=start_date_ad, end_date_ad=end_date_ad, description_ad=description_ad, id_company=id_company, published_ad=published_ad)
+        return message
+    
+    @strawberry.field
+    async def updateAd(self,token:str,id:int ,id_ad:int, name_ad:str=None, ad_url:str=None, start_date_ad:str=None, end_date_ad:str=None, description_ad:str=None, id_company:int=None, published_ad:bool=None) -> AdMessage:
+        isTokenValid = await Authenticate(token)
+        if isTokenValid["isTokenValid"] == False:
+            raise ValueError("Invalid Token, user not authorized")
+        isAdmin = await CheckAdmin(id=id)
+        if isAdmin["isAdmin"] == False:
+            raise ValueError("User is not an admin")
+        message = await UpdateAd(id_ad=id_ad, name_ad=name_ad, ad_url=ad_url, start_date_ad=start_date_ad, end_date_ad=end_date_ad, description_ad=description_ad, id_company=id_company, published_ad=published_ad)
+        return message
+    
+    @strawberry.field
+    async def deleteAd(self,token:str, id:int ,id_ad:int) -> AdMessage:
+        isTokenValid = await Authenticate(token)
+        if isTokenValid["isTokenValid"] == False:
+            raise ValueError("Invalid Token, user not authorized")
+        isAdmin = await CheckAdmin(id=id)
+        if isAdmin["isAdmin"] == False:
+            raise ValueError("User is not an admin")
+        message = await DeleteAd(id_ad=id_ad)
+        return message
+
+    @strawberry.field
+    async def createBill(self,token:str ,id_ad:int, amount:float) -> Payment:
+        isTokenValid = await Authenticate(token)
+        if isTokenValid["isTokenValid"] == False:
+            raise ValueError("Invalid Token, user not authorized")
+
+        payment = await CreateBill(id_ad=id_ad, amount=amount)
+        return payment
+    
+    @strawberry.field
+    async def payBill(self,token:str, id_payment:int) -> Payment:
+        isTokenValid = await Authenticate(token)
+        if isTokenValid["isTokenValid"] == False:
+            raise ValueError("Invalid Token, user not authorized")
+        payment = await PayBill(id_payment=id_payment)
+        return payment
+    
+    @strawberry.field
+    async def cancelBill(self,token:str, id_payment:int) -> Payment:
+        isTokenValid = await Authenticate(token)
+        if isTokenValid["isTokenValid"] == False:
+            raise ValueError("Invalid Token, user not authorized")
+        payment = await CancelBill(id_payment=id_payment)
+        return payment
+
     
     @strawberry.field
     async def likeMedia(self,token:str, id:int, mediaId:int, type:str) -> Other:

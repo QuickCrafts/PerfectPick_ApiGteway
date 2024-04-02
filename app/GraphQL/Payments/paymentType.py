@@ -7,3 +7,7 @@ class Payment:
     amount_payment: float
     created_time: str
     status_payment: str
+
+@strawberry.type
+class PaymentMessage:
+    message: str
