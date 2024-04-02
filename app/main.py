@@ -10,8 +10,16 @@ from app.GraphQL.Users.userMutations import RegisterUser, VerifyAccount
 from app.GraphQL.Users.userTypes import User, UserToken, GoogleURL, Other
 from app.GraphQL.Payments.paymentsQueries import GetAllPayments, GetPaymentByAd, GetPaymentByCompany, GetSinglePayment
 from app.GraphQL.Payments.paymentType import Payment
+from app.GraphQL.Users.userQueries import GetAllUsers, GetSingleUser,GetSingleUserByEmail ,EmailLogin, GoogleLogin, GetAllCountries,GetSingleCountry, PasswordReset
+from app.GraphQL.Users.userMutations import RegisterUser, VerifyAccount, ForgottenPasswordReset, ChangePassword, UpdateUser, CompleteSetup, DeleteUser, CreateCountry, UpdateCountry, DeleteCountry, ImportCountryData
+from app.GraphQL.Users.userTypes import User, UserToken, GoogleURL, Other, Country
 from dotenv import load_dotenv
-from app.utils import Authenticate
+from app.utils import Authenticate, CheckAdmin
+from app.GraphQL.Recommendations.recommendationQueries import fetch_recommendations
+from app.GraphQL.Recommendations.recommendationTypes import MovieRecommendation
+from producers.recommendations_producer import send_recommendation
+from app.GraphQL.Recommendations.recommendationMutations import CreateRecommendationInput, RecommendationResponse, fetch_likes
+
 
 load_dotenv()
 
@@ -19,14 +27,14 @@ load_dotenv()
 @strawberry.type
 class Query:
     @strawberry.field
-    async def GetUsers(self, userToken: str) -> list[User]:
+    async def allUsers(self, userToken: str) -> list[User]:
         isTokenValid = await Authenticate(userToken)
         if isTokenValid["isTokenValid"] == False:
             raise ValueError("Invalid Token, user not authorized")
         return await GetAllUsers()
     
     @strawberry.field
-    async def GetUserByUserID(self, userID: int, userToken: str) -> User:
+    async def userByID(self, userID: int, userToken: str) -> User:
         isTokenValid = await Authenticate(userToken)
         if isTokenValid["isTokenValid"] == False:
             raise ValueError("Invalid Token, user not authorized")
@@ -37,7 +45,18 @@ class Query:
             return potentialData
         
     @strawberry.field
-    async def LoginWithEmail(self, email: str, password: str) -> UserToken:
+    async def userByEmail(self, email: str, userToken: str) -> User:
+        isTokenValid = await Authenticate(userToken)
+        if isTokenValid["isTokenValid"] == False:
+            raise ValueError("Invalid Token, user not authorized")
+        potentialData = await GetSingleUserByEmail(email=email)
+        if potentialData is None:
+            raise ValueError("User not found")
+        else:
+            return potentialData
+        
+    @strawberry.field
+    async def loginWithEmail(self, email: str, password: str) -> UserToken:
         userToken = await EmailLogin(email=email, password=password)
         if userToken is None:
             raise ValueError("User not found")
@@ -45,12 +64,31 @@ class Query:
             return userToken
         
     @strawberry.field
-    async def LoginWithGoogle(self) -> GoogleURL:
+    async def loginWithGoogle(self) -> GoogleURL:
         userToken = await GoogleLogin()
         if userToken is None:
             raise ValueError("User not found")
         else:
             return userToken
+    
+    @strawberry.field
+    async def countryByID(self, countryID: int) -> Country:
+        potentialData = await GetSingleCountry(countryID=countryID)
+        return potentialData
+
+    @strawberry.field
+    async def allCountries(self) -> list[Country]:
+        return await GetAllCountries()
+
+    @strawberry.field
+    async def forgotPassword(self, email: str) -> Other:
+        await PasswordReset(email=email)
+        return Other(message="Email sent to reset password")
+    
+    @strawberry.field
+    async def getRecommendationsForUser(self, user_id: str) -> MovieRecommendation:
+        return await fetch_recommendations(user_id)
+
         
     @strawberry.field
     async def BillsByCompanyId (self,  userToken: str ,companyID: int) -> list[Payment]:
@@ -107,7 +145,7 @@ class Query:
 @strawberry.type
 class Mutation:
     @strawberry.field
-    async def RegisterWithEmail(self, email: str, password: str, firstName: str, lastName: str, birthdate: str, role: bool) -> UserToken:
+    async def signUpUser(self, email: str, password: str, firstName: str, lastName: str, birthdate: str, role: bool) -> Other:
         userToken = await RegisterUser(email=email, password=password, firstName=firstName, lastName=lastName, birthdate=birthdate, role=role)
         if userToken is None:
             raise ValueError("User not found")
@@ -115,13 +153,106 @@ class Mutation:
             return userToken
     
     @strawberry.field
-    async def VerifyUserAccount(self, token: str) -> Other:
+    async def VerifyUser(self, token: str) -> Other:
         message = await VerifyAccount(token=token)
         if message is None:
             raise ValueError("User not found")
         else:
             return message
         
+    @strawberry.field
+    async def recoverPassword(self, token: str, newPassword: str) -> Other:
+        message = await ForgottenPasswordReset(token=token, newPassword=newPassword)
+        if message is None:
+            raise ValueError("User not found")
+        else:
+            return message
+
+    @strawberry.field
+    async def changePassword(self, token:str, id: int ,email:str  ,oldPassword:str, newPassword:str) -> Other:
+        isTokenValid = await Authenticate(token)
+        if isTokenValid["isTokenValid"] == False:
+            raise ValueError("Invalid Token, user not authorized")
+        message = await ChangePassword(email=email, oldPassword=oldPassword, newPassword=newPassword)
+        return message     
+
+    @strawberry.field
+    async def updateUser(self,token:str, id:int ,firstName:str = None, lastName:str = None, birthdate:str = None, avatarUrl:str = None, gender:str = None, countryId:str  = None) -> Other:
+        isTokenValid = await Authenticate(token)
+        if isTokenValid["isTokenValid"] == False:
+            raise ValueError("Invalid Token, user not authorized")
+        message = await UpdateUser( id=id,firstName=firstName, lastName=lastName, birthdate=birthdate, avatarUrl=avatarUrl, gender=gender, countryId=countryId)
+        return message
+
+    @strawberry.field   
+    async def completeSetup(self,token:str, id:int) -> Other:
+        isTokenValid = await Authenticate(token)
+        if isTokenValid["isTokenValid"] == False:
+            raise ValueError("Invalid Token, user not authorized")
+        message = await CompleteSetup(id=id)
+        return message
+
+    @strawberry.field
+    async def deleteUser(self, token: str, id: int) -> Other:
+        isTokenValid = await Authenticate(token)
+        if isTokenValid["isTokenValid"] == False:
+            raise ValueError("Invalid Token, user not authorized")
+        message = await DeleteUser(id=id)
+        return message
+        
+    @strawberry.field
+    async def createCountry(self,token:str, id: int) -> Other:
+        isTokenValid = await Authenticate(token)
+        if isTokenValid["isTokenValid"] == False:
+            raise ValueError("Invalid Token, user not authorized")
+        isAdmin = await CheckAdmin(id=id)
+        if isAdmin["isAdmin"] == False:
+            raise ValueError("User is not an admin")
+        message = await CreateCountry()
+        return message
+    
+    @strawberry.field
+    async def updateCountry(self,token:str, id: int) -> Other:
+        isTokenValid = await Authenticate(token)
+        if isTokenValid["isTokenValid"] == False:
+            raise ValueError("Invalid Token, user not authorized")
+        isAdmin = await CheckAdmin(id=id)
+        if isAdmin["isAdmin"] == False:
+            raise ValueError("User is not an admin")
+        message = await UpdateCountry()
+        return message
+    
+    @strawberry.field
+    async def deleteCountry(self,token:str, id: int) -> Other:
+        isTokenValid = await Authenticate(token)
+        if isTokenValid["isTokenValid"] == False:
+            raise ValueError("Invalid Token, user not authorized")
+        isAdmin = await CheckAdmin(id=id)
+        if isAdmin["isAdmin"] == False:
+            raise ValueError("User is not an admin")
+        message = await DeleteCountry()
+        return message
+    
+    @strawberry.field
+    async def importCountries(self,token:str, id: int) -> Other:
+        isTokenValid = await Authenticate(token)
+        if isTokenValid["isTokenValid"] == False:
+            raise ValueError("Invalid Token, user not authorized")
+        isAdmin = await CheckAdmin(id=id)
+        if isAdmin["isAdmin"] == False:
+            raise ValueError("User is not an admin")
+        message = await ImportCountryData()
+        return message
+        
+    @strawberry.field   
+    async def create_recommendation(input: CreateRecommendationInput) -> RecommendationResponse:
+        likes_data = await fetch_likes(input.user_id)
+        if likes_data:
+            send_recommendation(likes_data)
+            return RecommendationResponse(message="Recommendation process started successfully.")
+        else:
+            return RecommendationResponse(message="Failed to fetch likes data or send to RabbitMQ.")
+
     @strawberry.field
     async def CreateCompany(self,userToken: str, name: str, email: str) -> CompanyId:
         isTokenValid = await Authenticate(userToken)
@@ -177,8 +308,5 @@ app.add_middleware(
 app.add_route("/graphql", graphql_app)
 app.add_websocket_route("/graphql", graphql_app)
 
-# Syntax for HTTP requests to Microservices
-@app.get("/Users")
-async def testFetch():
-    return await Authenticate("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJjZXJ0c2VyaWFsbnVtYmVyIjoiMmo2Mm9PQUNya1BBbWc2SS9WV2Q3QT09IiwibmJmIjoxNzExMzg3MTc4LCJleHAiOjE3MTE0MDE1NzgsImlhdCI6MTcxMTM4NzE3OH0.g-_vB7PcG4_BqU-m1qQGXtUDcSeWfcTZhV6boBRJP9Q")
+
 

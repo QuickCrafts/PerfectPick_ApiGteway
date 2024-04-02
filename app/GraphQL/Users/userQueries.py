@@ -1,8 +1,9 @@
-from app.GraphQL.Users.userTypes import User, UserToken, GoogleURL
+from app.GraphQL.Users.userTypes import User, UserToken, GoogleURL, Country
 import httpx
 import os
 
 
+# USER ONLY QUERIES
 
 async def GetAllUsers() -> list[User]:
     api_url = os.environ.get("USERS_URL")
@@ -10,8 +11,18 @@ async def GetAllUsers() -> list[User]:
     async with httpx.AsyncClient() as client:
         response = await client.get(auth_url)
         data = response.json()
-        # Turns every JSON on the list into a User object
-        return [User(**user_data) for user_data in data]
+        users = []
+        for user in data:
+            countryID = user["countryId"]
+            if countryID != None:
+                async with httpx.AsyncClient() as client:
+                    country_response = await client.get(api_url + "/Country/" + countryID)
+                    country_data = country_response.json()
+                    countryName = country_data["name"]
+            else:
+                countryName = "NaN"
+            users.append(User(idUser=user["idUser"], email=user["email"], password=user["password"], firstName=user["firstName"], lastName=user["lastName"], birthdate=user["birthdate"], role=user["role"], avatarUrl=user["avatarUrl"], createdTime=user["createdTime"], verified=user["verified"], setup=user["setup"], country=countryName))
+        return users
     
 
 async def GetSingleUser(userID: int) -> User:
@@ -22,9 +33,39 @@ async def GetSingleUser(userID: int) -> User:
         if response.status_code == 404:
             return None
         data = response.json()
-        # Turns the JSON into a User object
-        return User(**data)
+        
+        countryID = data["countryId"]
+        if countryID != None:
+            async with httpx.AsyncClient() as client:
+                country_response = await client.get(api_url + "/Country/" + countryID)
+                country_data = country_response.json()
+                countryName = country_data["name"]
+        else:
+            countryName = "NaN"
+        return User(idUser=data["idUser"], email=data["email"], password=data["password"], firstName=data["firstName"], lastName=data["lastName"], birthdate=data["birthdate"], role=data["role"], avatarUrl=data["avatarUrl"], createdTime=data["createdTime"], verified=data["verified"], setup=data["setup"], country=countryName)
     
+async def GetSingleUserByEmail(email: str) -> User:
+    api_url = os.environ.get("USERS_URL")
+    auth_url = api_url + "/Users/Email/" + email
+    async with httpx.AsyncClient() as client:
+        response = await client.get(auth_url)
+        print(auth_url)
+        print(response.text)
+        if response.status_code == 404:
+            return None
+        data = response.json()
+        
+        countryID = data["countryId"]
+        if countryID != None:
+            async with httpx.AsyncClient() as client:
+                country_response = await client.get(api_url + "/Country/" + countryID)
+                country_data = country_response.json()
+                countryName = country_data["name"]
+        else:
+            countryName = "NaN"
+        return User(idUser=data["idUser"], email=data["email"], password=data["password"], firstName=data["firstName"], lastName=data["lastName"], birthdate=data["birthdate"], role=data["role"], avatarUrl=data["avatarUrl"], createdTime=data["createdTime"], verified=data["verified"], setup=data["setup"], country=countryName)
+    
+
 async def EmailLogin(email: str, password: str) -> UserToken:
     api_url = os.environ.get("USERS_URL")
     auth_url = api_url + "/Users/Login"
@@ -42,3 +83,34 @@ async def GoogleLogin() -> UserToken:
         if response.status_code == 500:
             return None
         return GoogleURL(url=response.url)
+    
+# COUNTRY QUERIES
+    
+async def GetAllCountries() -> list[Country]:
+    api_url = os.environ.get("USERS_URL")
+    auth_url = api_url + "/Country"
+    async with httpx.AsyncClient() as client:
+        response = await client.get(auth_url)
+        data = response.json()
+        return [Country(**country_data) for country_data in data]
+    
+async def GetSingleCountry(countryID: int) -> Country:
+    api_url = os.environ.get("USERS_URL")
+    auth_url = api_url + "/Country/" + str(countryID)
+    async with httpx.AsyncClient() as client:
+        response = await client.get(auth_url)
+        if response.status_code == 404:
+            raise ValueError("Country not found")
+        elif response.status_code == 500:
+            raise ValueError("Internal Server Error")
+        data = response.json()
+        return Country(**data)
+
+async def PasswordReset(email: str) -> str:
+    api_url = os.environ.get("USERS_URL")
+    auth_url = api_url + "/Users/auth/forgot/" + email
+    async with httpx.AsyncClient() as client:
+        response = await client.post(auth_url)
+        if response.status_code == 500:
+            return None
+        return response.text

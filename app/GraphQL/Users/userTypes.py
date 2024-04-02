@@ -1,4 +1,5 @@
 import strawberry
+from typing import Optional
 
 @strawberry.type
 class User:
@@ -13,6 +14,7 @@ class User:
     createdTime: str
     verified: bool
     setup: bool
+    country: str
 
 @strawberry.type
 class UserToken:
@@ -25,3 +27,19 @@ class GoogleURL:
 @strawberry.type
 class Other:
     message: str
+
+@strawberry.type
+class Country:
+    id_country: int
+    name: str
+    code_2: str
+    code_3: str
+
+@strawberry.type
+class UpdateUser:
+    firstName: Optional[str] = None
+    lastName: Optional[str] = None
+    birthdate: Optional[str] = None
+    avatarUrl: Optional[str] = None
+    gender: Optional[str] = None
+    country: Optional[str] = None
