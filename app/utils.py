@@ -14,6 +14,7 @@ async def Authenticate(userToken: str):
         return{
             "isTokenValid": isTokenValid,
             "Code": response.status_code,
+            "role": response.text.role,
         }
     
 async def CheckAdmin(id:int):

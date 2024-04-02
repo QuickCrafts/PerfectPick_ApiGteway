@@ -4,6 +4,9 @@ from strawberry.asgi import GraphQL
 from starlette.middleware.cors import CORSMiddleware
 from app.GraphQL.Companies.companiesMutations import CreateCompany, UpdatedCompany
 from app.GraphQL.Companies.companiesType import CompanyId
+from app.GraphQL.Likes.likesMutations import DeletePreference, DislikeMedia, LikeMedia, RatingMedia
+from app.GraphQL.Likes.likesQueries import GetLikesById, GetLikesByMedia, GetWishlistByUserId
+from app.GraphQL.Likes.likesTypes import Like
 from app.GraphQL.Release.releaseMutations import PublishAd
 from app.GraphQL.Users.userQueries import GetAllUsers, GetSingleUser, EmailLogin, GoogleLogin
 from app.GraphQL.Users.userMutations import RegisterUser, VerifyAccount
@@ -141,7 +144,36 @@ class Query:
             raise ValueError("Bill not found")
         else:
             return potentialData
-
+        
+    @strawberry.field
+    async def LikesByUserId (self, userToken:str, id:int, preference:str, media:str) -> list[Like]:
+        isTokenValid = await Authenticate(userToken)
+        if isTokenValid["isTokenValid"] == False:
+            raise ValueError("Invalid Token, user not authorized")
+        potentialData = await GetLikesById(id=id, media=media, preference=preference)
+        if potentialData is None:
+            raise ValueError("Likes not found")
+        else:
+            return potentialData
+        
+    @strawberry.field
+    async def LikesByMediaId(self, id:int, media:str, preference:str) -> list[Like]:
+        potentialData = await GetLikesByMedia(id=id, media=media, preference=preference)
+        if potentialData is None:
+            raise ValueError("Likes not found")
+        else:
+            return potentialData
+        
+    @strawberry.field
+    async def wishlistByUserId(self, token:str, id:int, media:str) -> list[Like]:
+        isTokenValid = await Authenticate(token)
+        if isTokenValid["isTokenValid"] == False:
+            raise ValueError("Invalid Token, user not authorized")
+        potentialData = await GetWishlistByUserId(userID=id, media=media)
+        if potentialData is None:
+            raise ValueError("Wishlist not found")
+        else:
+            return potentialData
 @strawberry.type
 class Mutation:
     @strawberry.field
@@ -289,6 +321,46 @@ class Mutation:
         publish = await PublishAd(adID=adID)
         
         return publish
+    
+    @strawberry.field
+    async def likeMedia(self,token:str, id:int, mediaId:int, type:str) -> Other:
+        isTokenValid = await Authenticate(token)
+        if isTokenValid["isTokenValid"] == False:
+            raise ValueError("Invalid Token, user not authorized")
+        like = await LikeMedia(id=id, mediaId=mediaId, type=type)
+        if like is None:
+            raise ValueError("Like not created")
+        else:
+            return like
+    async def dislikeMedia(self,token:str, id:int, mediaId:int, type:str) -> Other:
+        isTokenValid = await Authenticate(token)
+        if isTokenValid["isTokenValid"] == False:
+            raise ValueError("Invalid Token, user not authorized")
+        dislike = await DislikeMedia(id=id, mediaId=mediaId, type=type)
+        if dislike is None:
+            raise ValueError("Dislike not created")
+        else:
+            return dislike
+    
+    async def deletePreference(self,token:str, id:int, mediaId:int, type:str) -> Other:
+        isTokenValid = await Authenticate(token)
+        if isTokenValid["isTokenValid"] == False:
+            raise ValueError("Invalid Token, user not authorized")
+        delete = await DeletePreference(id=id, mediaId=mediaId, type=type)
+        if delete is None:
+            raise ValueError("Preference not deleted")
+        else:
+            return delete
+    
+    async def ratingMedia(self,token:str, id:int, mediaId:int, type:str, rating:int) -> Other:
+        isTokenValid = await Authenticate(token)
+        if isTokenValid["isTokenValid"] == False:
+            raise ValueError("Invalid Token, user not authorized")
+        rating = await RatingMedia(id=id, mediaId=mediaId, type=type, rating=rating)
+        if rating is None:
+            raise ValueError("Rating not created")
+        else:
+            return rating
 
 schema = strawberry.Schema(query=Query, mutation=Mutation)
 
