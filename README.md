@@ -71,7 +71,7 @@ Run and deploy project instruction on [Deployment](#deploy).
     * [Like media](#id4.3.1)
     * [Dislike media](#id4.3.2)
     * [Delete preference](#id4.3.3)
-    * [Rating media](#id4.3.4)
+    * [Rate media](#id4.3.4)
     * [Update media rating](#id4.3.5)
     * [Add media to wishlist](#id4.3.6)
     * [Remove media from wishlist](#id4.3.7)
