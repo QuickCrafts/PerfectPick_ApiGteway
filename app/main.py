@@ -327,6 +327,21 @@ class Mutation:
         publish = await PublishAd(adID=adID)
         
         return publish
+    
+    @strawberry.field
+    async def createAd(self, id_ad:int, name_ad:str, ad_url:str, start_date_ad:str, end_date_ad:str, description_ad:str, id_company:int, published_ad:bool) -> AdMessage:
+        message = await CreateAd(id_ad=id_ad, name_ad=name_ad, ad_url=ad_url, start_date_ad=start_date_ad, end_date_ad=end_date_ad, description_ad=description_ad, id_company=id_company, published_ad=published_ad)
+        return message
+    
+    @strawberry.field
+    async def updateAd(self, id_ad:int, name_ad:str=None, ad_url:str=None, start_date_ad:str=None, end_date_ad:str=None, description_ad:str=None, id_company:int=None, published_ad:bool=None) -> AdMessage:
+        message = await UpdateAd(id_ad=id_ad, name_ad=name_ad, ad_url=ad_url, start_date_ad=start_date_ad, end_date_ad=end_date_ad, description_ad=description_ad, id_company=id_company, published_ad=published_ad)
+        return message
+    
+    @strawberry.field
+    async def deleteAd(self, id_ad:int) -> AdMessage:
+        message = await DeleteAd(id_ad=id)
+        return message
 
 schema = strawberry.Schema(query=Query, mutation=Mutation)
 
