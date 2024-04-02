@@ -8,7 +8,7 @@ class Like:
     like_type: str
 class Media:
     type: str
-    id: int
+    id: str
     info: str
 class LikeExtended:
     like: Like
