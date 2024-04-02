@@ -2,9 +2,14 @@ import strawberry
 from fastapi import FastAPI
 from strawberry.asgi import GraphQL
 from starlette.middleware.cors import CORSMiddleware
+from app.GraphQL.Companies.companiesMutations import CreateCompany, UpdatedCompany
+from app.GraphQL.Companies.companiesType import CompanyId
+from app.GraphQL.Release.releaseMutations import PublishAd
 from app.GraphQL.Users.userQueries import GetAllUsers, GetSingleUser, EmailLogin, GoogleLogin
 from app.GraphQL.Users.userMutations import RegisterUser, VerifyAccount
 from app.GraphQL.Users.userTypes import User, UserToken, GoogleURL, Other
+from app.GraphQL.Payments.paymentsQueries import GetAllPayments, GetPaymentByAd, GetPaymentByCompany, GetSinglePayment
+from app.GraphQL.Payments.paymentType import Payment
 from dotenv import load_dotenv
 from app.utils import Authenticate
 
@@ -47,6 +52,58 @@ class Query:
         else:
             return userToken
         
+    @strawberry.field
+    async def BillsByCompanyId (self,  userToken: str ,companyID: int) -> list[Payment]:
+        isTokenValid = await Authenticate(userToken)
+        if isTokenValid["isTokenValid"] == False:
+            raise ValueError("Invalid Token, user not authorized")
+        if isTokenValid["role"] != 1:
+            raise ValueError("User not authorized")
+        potentialData = await GetPaymentByCompany(companyID=companyID)
+        if potentialData is None:
+            raise ValueError("Bills not found")
+        else:
+            return potentialData
+    
+    @strawberry.field
+    async def BillsByAdId (self,  userToken: str ,adID: int) -> list[Payment]:
+        isTokenValid = await Authenticate(userToken)
+        if isTokenValid["isTokenValid"] == False:
+            raise ValueError("Invalid Token, user not authorized")
+        if isTokenValid["role"] != 1:
+            raise ValueError("User not authorized")
+        potentialData = await GetPaymentByAd(adID=adID)
+        if potentialData is None:
+            raise ValueError("Bills not found")
+        else:
+            return potentialData
+
+    @strawberry.field
+    async def AllBills (self,  userToken: str) -> list[Payment]:
+        isTokenValid = await Authenticate(userToken)
+        if isTokenValid["isTokenValid"] == False:
+            raise ValueError("Invalid Token, user not authorized")
+        if isTokenValid["role"] != 1:
+            raise ValueError("User not authorized")
+        potentialData = await GetAllPayments()
+        if potentialData is None:
+            raise ValueError("Bills not found")
+        else:
+            return potentialData
+    
+    @strawberry.field
+    async def BillById (self,  userToken: str, idPayment: int) -> Payment:
+        isTokenValid = await Authenticate(userToken)
+        if isTokenValid["isTokenValid"] == False:
+            raise ValueError("Invalid Token, user not authorized")
+        if isTokenValid["role"] != 1:
+            raise ValueError("User not authorized")
+        potentialData = await GetSinglePayment(idPayment=idPayment)
+        if potentialData is None:
+            raise ValueError("Bill not found")
+        else:
+            return potentialData
+
 @strawberry.type
 class Mutation:
     @strawberry.field
@@ -65,10 +122,42 @@ class Mutation:
         else:
             return message
         
+    @strawberry.field
+    async def CreateCompany(self,userToken: str, name: str, email: str) -> CompanyId:
+        isTokenValid = await Authenticate(userToken)
+        if isTokenValid["isTokenValid"] == False:
+            raise ValueError("Invalid Token, user not authorized")
+        if isTokenValid["role"] != 1:
+            raise ValueError("User not authorized")
+        company = await CreateCompany(name=name, email=email)
+        if company is None:
+            raise ValueError("Company not created")
+        else:
+            return company
 
-
+    @strawberry.field
+    async def UpdateCompany (self, userToken: str, companyId:int, name: str, email: str) -> CompanyId:
+        isTokenValid = await Authenticate(userToken)
+        if isTokenValid["isTokenValid"] == False:
+            raise ValueError("Invalid Token, user not authorized")
+        if isTokenValid["role"] != 1:
+            raise ValueError("User not authorized")
+        company = await UpdatedCompany(companyId=companyId, name=name, email=email)
+        if company is None:
+            raise ValueError("Company not updated")
+        else:
+            return company
         
-
+    @strawberry.field
+    async def PublishAd(self, userToken: str, adID: int) -> Other:
+        isTokenValid = await Authenticate(userToken)
+        if isTokenValid["isTokenValid"] == False:
+            raise ValueError("Invalid Token, user not authorized")
+        if isTokenValid["role"] != 1:
+            raise ValueError("User not authorized")
+        publish = await PublishAd(adID=adID)
+        
+        return publish
 
 schema = strawberry.Schema(query=Query, mutation=Mutation)
 
