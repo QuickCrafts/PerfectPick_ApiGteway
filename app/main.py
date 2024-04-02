@@ -218,6 +218,44 @@ class Query:
             raise ValueError("Wishlist not found")
         else:
             return potentialData
+        
+    @strawberry.field
+    async def GetMovies(self) -> list[Movie]:
+        return await GetAllMovies()
+    
+    @strawberry.field
+    async def GetBooks(self) -> list[Book]:
+        return await GetAllBooks()
+    
+    @strawberry.field
+    async def GetSongs(self) -> list[Song]:
+        return await GetAllSongs()
+    
+    @strawberry.field
+    async def GetSingleMovie(self, movieID: str) -> Movie:
+        potentialData = await GetSingleMovie(movieID=movieID)
+        if potentialData is None:
+            raise ValueError("Movie not found")
+        else:
+            return potentialData
+    
+    @strawberry.field
+    async def GetSingleBook(self, bookID: str) -> Book:
+        potentialData = await GetSingleBook(bookID=bookID)
+        if potentialData is None:
+            raise ValueError("Book not found")
+        else:
+            return potentialData
+
+    @strawberry.field
+    async def GetSingleSong(self, songID: str) -> Song:
+        potentialData = await GetSingleSong(songID=songID)
+        if potentialData is None:
+            raise ValueError("Song not found")
+        else:
+            return potentialData
+
+
 @strawberry.type
 class Mutation:
     @strawberry.field
@@ -235,6 +273,102 @@ class Mutation:
             raise ValueError("User not found")
         else:
             return message
+        
+    @strawberry.mutation
+    async def InitializeAllMovies(self) -> str:
+        movie = await InitializeMovies()
+        if movie is None:
+            raise ValueError("Error trying to initialize the movies")
+        else:
+            return movie
+        
+    @strawberry.mutation
+    async def InitializeAllBooks(self) -> str:
+        movie = await InitializeBooks()
+        if movie is None:
+            raise ValueError("Error trying to initialize the books")
+        else:
+            return movie
+        
+    @strawberry.mutation
+    async def InitializeAllSongs(self) -> str:
+        movie = await InitializeSongs()
+        if movie is None:
+            raise ValueError("Error trying to initialize the songs")
+        else:
+            return movie
+    
+    @strawberry.mutation
+    async def CreateNewMovie(self, idMovie: str, awards: Optional[str], cast: Optional[str], director: Optional[str], duration: Optional[str], episodes: Optional[int], genre: Optional[str], original_title: Optional[str], rating: Optional[float], release_date: Optional[str], seasons: Optional[int], title: Optional[str], writers: Optional[str]) -> str:
+        movie = await CreateMovie(id_movie=idMovie, awards=awards, cast=cast, director=director, duration=duration, episodes=episodes, genre=genre, original_title=original_title, rating=rating, release_date=release_date, seasons=seasons, title=title, writers=writers)
+        if movie is None:
+            raise ValueError("Error trying to create the movie")
+        else:
+            return movie
+        
+    @strawberry.mutation
+    async def CreateNewBook(self, id_book: str, author: Optional[str], genres: Optional[str], pages: Optional[int], rating: Optional[float], title: Optional[str], year: Optional[int]) -> str:
+        book = await CreateBook(id_book=id_book, author=author, genres=genres, pages=pages, rating=rating, title=title, year=year)
+        if book is None:
+            raise ValueError("Error trying to create the book")
+        else:
+            return book
+        
+    @strawberry.mutation
+    async def CreateNewSong(self, id_song: str, album: Optional[str], artist: Optional[str], duration: Optional[int], genres: Optional[str], title: Optional[str], year: Optional[int]) -> str:
+        song = await CreateSong(id_song=id_song, album=album, artist=artist, duration=duration, genres=genres, title=title, year=year)
+        if song is None:
+            raise ValueError("Error trying to create the book")
+        else:
+            return song
+    
+    @strawberry.mutation
+    async def EditExistingMovie(self, idMovie: str, awards: Optional[str], cast: Optional[str], director: Optional[str], duration: Optional[str], episodes: Optional[int], genre: Optional[str], original_title: Optional[str], rating: Optional[float], release_date: Optional[str], seasons: Optional[int], title: Optional[str], writers: Optional[str]) -> str:
+        movie = await EditMovie(id_movie=idMovie, awards=awards, cast=cast, director=director, duration=duration, episodes=episodes, genre=genre, original_title=original_title, rating=rating, release_date=release_date, seasons=seasons, title=title, writers=writers)
+        if movie is None:
+            raise ValueError("Error trying to edit the movie")
+        else:
+            return movie
+
+    @strawberry.mutation
+    async def EditExistingBook(self, id_book: str, author: Optional[str], genres: Optional[str], pages: Optional[int], rating: Optional[float], title: Optional[str], year: Optional[int]) -> str:
+        book = await EditBook(id_book=id_book, author=author, genres=genres, pages=pages, rating=rating, title=title, year=year)
+        if book is None:
+            raise ValueError("Error trying to edit the book")
+        else:
+            return book
+        
+    @strawberry.mutation
+    async def EditExistingSong(self, id_song: str, album: Optional[str], artist: Optional[str], duration: Optional[int], genres: Optional[str], title: Optional[str], year: Optional[int]) -> str:
+        song = await EditSong(id_song=id_song, album=album, artist=artist, duration=duration, genres=genres, title=title, year=year)
+        if song is None:
+            raise ValueError("Error trying to edit the song")
+        else:
+            return song
+    
+    @strawberry.mutation
+    async def DeleteExistingMovie(self, idMovie: str) -> str:
+        movie = await DeleteMovie(id_movie=idMovie)
+        if movie is None:
+            raise ValueError("Error trying to delete the movie")
+        else:
+            return movie
+    
+    @strawberry.mutation
+    async def DeleteExistingBook(self, id_book: str) -> str:
+        book = await DeleteBook(id_book=id_book)
+        if book is None:
+            raise ValueError("Error trying to delete the book")
+        else:
+            return book
+    
+    @strawberry.mutation
+    async def DeleteExistingSong(self, id_song: str) -> str:
+        song = await DeleteSong(id_song=id_song)
+        if song is None:
+            raise ValueError("Error trying to delete the song")
+        else:
+            return song
         
     @strawberry.mutation
     async def InitializeAllMovies(self) -> str:
