@@ -4,7 +4,7 @@ from strawberry.asgi import GraphQL
 from starlette.middleware.cors import CORSMiddleware
 from app.GraphQL.Companies.companiesMutations import CreateCompany, UpdatedCompany
 from app.GraphQL.Companies.companiesType import CompanyId
-from app.GraphQL.Likes.likesMutations import DeletePreference, DislikeMedia, LikeMedia, RatingMedia
+from app.GraphQL.Likes.likesMutations import AddToWishlist, DeletePreference, DislikeMedia, LikeMedia, RatingMedia, RemoveFromWishlist
 from app.GraphQL.Likes.likesQueries import GetLikesById, GetLikesByMedia, GetRatingByMediaId, GetWishlistByUserId
 from app.GraphQL.Likes.likesTypes import Like
 from app.GraphQL.Release.releaseMutations import PublishAd
@@ -676,6 +676,7 @@ class Mutation:
         else:
             return like
 
+    @strawberry.field
     async def dislikeMedia(self,token:str, id:int, mediaId:str, type:str) -> Other:
         isTokenValid = await Authenticate(token)
         if isTokenValid["isTokenValid"] == False:
@@ -685,7 +686,30 @@ class Mutation:
             raise ValueError("Dislike not created")
         else:
             return dislike
+        
+    @strawberry.field
+    async def addToWishlist(self,token:str, id:int, mediaId:str, type:str) -> Other:
+        isTokenValid = await Authenticate(token)
+        if isTokenValid["isTokenValid"] == False:
+            raise ValueError("Invalid Token, user not authorized")
+        dislike = await AddToWishlist(id=id, mediaId=mediaId, type=type)
+        if dislike is None:
+            raise ValueError("Media not added to wishlist")
+        else:
+            return dislike
+        
+    @strawberry.field
+    async def removeFromWishlist(self,token:str, id:int, mediaId:str, type:str) -> Other:
+        isTokenValid = await Authenticate(token)
+        if isTokenValid["isTokenValid"] == False:
+            raise ValueError("Invalid Token, user not authorized")
+        dislike = await RemoveFromWishlist(id=id, mediaId=mediaId, type=type)
+        if dislike is None:
+            raise ValueError("Media not removed to wishlist")
+        else:
+            return dislike
     
+    @strawberry.field
     async def deletePreference(self,token:str, id:int, mediaId:str, type:str) -> Other:
         isTokenValid = await Authenticate(token)
         if isTokenValid["isTokenValid"] == False:
@@ -696,6 +720,7 @@ class Mutation:
         else:
             return delete
     
+    @strawberry.field
     async def ratingMedia(self,token:str, id:int, mediaId:str, type:str, rating:int) -> Other:
         isTokenValid = await Authenticate(token)
         if isTokenValid["isTokenValid"] == False:
