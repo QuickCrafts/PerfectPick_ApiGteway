@@ -1,5 +1,4 @@
 from app.GraphQL.Users.userTypes import UserToken, Other
-from app.utils import Authenticate
 import httpx
 import os
 import strawberry
