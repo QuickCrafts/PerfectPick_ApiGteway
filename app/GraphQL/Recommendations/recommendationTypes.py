@@ -19,3 +19,10 @@ class CreateRecommendationInput:
 @strawberry.type
 class RecommendationResponse:
     message: str
+
+@strawberry.input
+class UpdateRecommendationInput:
+    movies: list[str]
+    books: list[str]
+    songs: list[str]
+    created_at: str

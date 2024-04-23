@@ -2,7 +2,19 @@ import strawberry
 
 @strawberry.type
 class Like:
-    id_like: int
-    id_user: int
-    id_ad: int
-    created_time: str
+    media_id: str
+    user_id: int
+    type: str
+    like_type: str
+class Media:
+    type: str
+    id: str
+    info: str
+class LikeExtended:
+    like: Like
+    media: Media
+class Wishlist:
+    user_id: int
+    movies: list[LikeExtended]
+    songs: list[LikeExtended]
+    books: list[LikeExtended]

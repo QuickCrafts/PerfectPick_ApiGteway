@@ -1,3 +1,11 @@
+docker stop apigateway
+docker rm apigateway
+
+docker rmi apigateway
+
 docker build -t apigateway .
-docker run -d --name apigateway -p 9000:9000 apigateway
+
+echo "running docker..."
+
+docker run -d --name apigateway --network perfectpickusersnetwork -p 9000:9000 apigateway 
 

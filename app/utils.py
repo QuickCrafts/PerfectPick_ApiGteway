@@ -4,7 +4,10 @@ import os
 
 async def Authenticate(userToken: str):
     api_url = os.environ.get("USERS_URL")
+    print("we are here")
+    print(api_url)
     auth_url = api_url + "/Users/verify/" + userToken
+    print(auth_url)
     async with httpx.AsyncClient() as client:
         response = await client.get(auth_url)
         if response.status_code == 200:

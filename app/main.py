@@ -4,6 +4,9 @@ from strawberry.asgi import GraphQL
 from starlette.middleware.cors import CORSMiddleware
 from app.GraphQL.Companies.companiesMutations import CreateCompany, UpdatedCompany
 from app.GraphQL.Companies.companiesType import CompanyId
+from app.GraphQL.Likes.likesMutations import AddToWishlist, DeletePreference, DislikeMedia, LikeMedia, RatingMedia, RemoveFromWishlist
+from app.GraphQL.Likes.likesQueries import GetLikesById, GetLikesByMedia, GetRatingByMediaId, GetWishlistByUserId
+from app.GraphQL.Likes.likesTypes import Like
 from app.GraphQL.Release.releaseMutations import PublishAd
 from app.GraphQL.Users.userQueries import GetAllUsers, GetSingleUser, EmailLogin, GoogleLogin, SendContactEmail, VerifyGetId
 from app.GraphQL.Users.userMutations import RegisterUser, VerifyAccount
@@ -25,8 +28,12 @@ from producers.recommendations_producer import send_recommendation
 from app.GraphQL.Recommendations.recommendationMutations import CreateRecommendationInput, RecommendationResponse, fetch_likes
 
 
-load_dotenv()
+from typing import Optional
+from app.GraphQL.Catalog.catalogQueries import GetAllMovies, GetAllBooks, GetAllSongs, GetSingleMovie, GetSingleBook, GetSingleSong
+from app.GraphQL.Catalog.catalogMutations import InitializeMovies, InitializeBooks, InitializeSongs, CreateMovie, CreateBook, CreateSong, EditMovie, EditBook, EditSong, DeleteMovie, DeleteBook, DeleteSong
+from app.GraphQL.Catalog.catalogTypes import Movie, Book, Song
 
+load_dotenv()
 
 @strawberry.type
 class Query:
@@ -192,6 +199,81 @@ class Query:
             raise ValueError("User is not an admin")
         return await GetCompanies()
 
+        
+    @strawberry.field
+    async def LikesByUserId (self, userToken:str, id:int) -> list[Like]:
+        isTokenValid = await Authenticate(userToken)
+        if isTokenValid["isTokenValid"] == False:
+            raise ValueError("Invalid Token, user not authorized")
+        potentialData = await GetLikesById(id=id, media=None, preference=None)
+        if potentialData is None:
+            raise ValueError("Likes not found")
+        else:
+            return potentialData
+        
+    @strawberry.field
+    async def LikesByMediaId(self, id:str, media:str) -> list[Like]:
+        potentialData = await GetLikesByMedia(id=id, media=media, preference=None)
+        if potentialData is None:
+            raise ValueError("Likes not found")
+        else:
+            return potentialData
+        
+    @strawberry.field
+    async def wishlistByUserId(self, token:str, id:int) -> list[Like]:
+        isTokenValid = await Authenticate(token)
+        if isTokenValid["isTokenValid"] == False:
+            raise ValueError("Invalid Token, user not authorized")
+        potentialData = await GetWishlistByUserId(userID=id)
+        if potentialData is None:
+            raise ValueError("Wishlist not found")
+        else:
+            return potentialData
+        
+    @strawberry.field
+    async def ratingByMediaId(self, id:str, media: str) -> list[Like]:
+        potentialData = await GetRatingByMediaId(id=id, media=media)
+        if potentialData is None:
+            raise ValueError("Average rating not found")
+        else:
+            return potentialData
+        
+    async def GetMovies(self) -> list[Movie]:
+        return await GetAllMovies()
+    
+    @strawberry.field
+    async def GetBooks(self) -> list[Book]:
+        return await GetAllBooks()
+    
+    @strawberry.field
+    async def GetSongs(self) -> list[Song]:
+        return await GetAllSongs()
+    
+    @strawberry.field
+    async def GetSingleMovie(self, movieID: str) -> Movie:
+        potentialData = await GetSingleMovie(movieID=movieID)
+        if potentialData is None:
+            raise ValueError("Movie not found")
+        else:
+            return potentialData
+    
+    @strawberry.field
+    async def GetSingleBook(self, bookID: str) -> Book:
+        potentialData = await GetSingleBook(bookID=bookID)
+        if potentialData is None:
+            raise ValueError("Book not found")
+        else:
+            return potentialData
+
+    @strawberry.field
+    async def GetSingleSong(self, songID: str) -> Song:
+        potentialData = await GetSingleSong(songID=songID)
+        if potentialData is None:
+            raise ValueError("Song not found")
+        else:
+            return potentialData
+
+
 @strawberry.type
 class Mutation:
     @strawberry.field
@@ -209,6 +291,198 @@ class Mutation:
             raise ValueError("User not found")
         else:
             return message
+        
+    @strawberry.mutation
+    async def InitializeAllMovies(self) -> str:
+        movie = await InitializeMovies()
+        if movie is None:
+            raise ValueError("Error trying to initialize the movies")
+        else:
+            return movie
+        
+    @strawberry.mutation
+    async def InitializeAllBooks(self) -> str:
+        movie = await InitializeBooks()
+        if movie is None:
+            raise ValueError("Error trying to initialize the books")
+        else:
+            return movie
+        
+    @strawberry.mutation
+    async def InitializeAllSongs(self) -> str:
+        movie = await InitializeSongs()
+        if movie is None:
+            raise ValueError("Error trying to initialize the songs")
+        else:
+            return movie
+    
+    @strawberry.mutation
+    async def CreateNewMovie(self, idMovie: str, awards: Optional[str], cast: Optional[str], director: Optional[str], duration: Optional[str], episodes: Optional[int], genre: Optional[str], original_title: Optional[str], rating: Optional[float], release_date: Optional[str], seasons: Optional[int], title: Optional[str], writers: Optional[str]) -> str:
+        movie = await CreateMovie(id_movie=idMovie, awards=awards, cast=cast, director=director, duration=duration, episodes=episodes, genre=genre, original_title=original_title, rating=rating, release_date=release_date, seasons=seasons, title=title, writers=writers)
+        if movie is None:
+            raise ValueError("Error trying to create the movie")
+        else:
+            return movie
+        
+    @strawberry.mutation
+    async def CreateNewBook(self, id_book: str, author: Optional[str], genres: Optional[str], pages: Optional[int], rating: Optional[float], title: Optional[str], year: Optional[int]) -> str:
+        book = await CreateBook(id_book=id_book, author=author, genres=genres, pages=pages, rating=rating, title=title, year=year)
+        if book is None:
+            raise ValueError("Error trying to create the book")
+        else:
+            return book
+        
+    @strawberry.mutation
+    async def CreateNewSong(self, id_song: str, album: Optional[str], artist: Optional[str], duration: Optional[int], genres: Optional[str], title: Optional[str], year: Optional[int]) -> str:
+        song = await CreateSong(id_song=id_song, album=album, artist=artist, duration=duration, genres=genres, title=title, year=year)
+        if song is None:
+            raise ValueError("Error trying to create the book")
+        else:
+            return song
+    
+    @strawberry.mutation
+    async def EditExistingMovie(self, idMovie: str, awards: Optional[str], cast: Optional[str], director: Optional[str], duration: Optional[str], episodes: Optional[int], genre: Optional[str], original_title: Optional[str], rating: Optional[float], release_date: Optional[str], seasons: Optional[int], title: Optional[str], writers: Optional[str]) -> str:
+        movie = await EditMovie(id_movie=idMovie, awards=awards, cast=cast, director=director, duration=duration, episodes=episodes, genre=genre, original_title=original_title, rating=rating, release_date=release_date, seasons=seasons, title=title, writers=writers)
+        if movie is None:
+            raise ValueError("Error trying to edit the movie")
+        else:
+            return movie
+
+    @strawberry.mutation
+    async def EditExistingBook(self, id_book: str, author: Optional[str], genres: Optional[str], pages: Optional[int], rating: Optional[float], title: Optional[str], year: Optional[int]) -> str:
+        book = await EditBook(id_book=id_book, author=author, genres=genres, pages=pages, rating=rating, title=title, year=year)
+        if book is None:
+            raise ValueError("Error trying to edit the book")
+        else:
+            return book
+        
+    @strawberry.mutation
+    async def EditExistingSong(self, id_song: str, album: Optional[str], artist: Optional[str], duration: Optional[int], genres: Optional[str], title: Optional[str], year: Optional[int]) -> str:
+        song = await EditSong(id_song=id_song, album=album, artist=artist, duration=duration, genres=genres, title=title, year=year)
+        if song is None:
+            raise ValueError("Error trying to edit the song")
+        else:
+            return song
+    
+    @strawberry.mutation
+    async def DeleteExistingMovie(self, idMovie: str) -> str:
+        movie = await DeleteMovie(id_movie=idMovie)
+        if movie is None:
+            raise ValueError("Error trying to delete the movie")
+        else:
+            return movie
+    
+    @strawberry.mutation
+    async def DeleteExistingBook(self, id_book: str) -> str:
+        book = await DeleteBook(id_book=id_book)
+        if book is None:
+            raise ValueError("Error trying to delete the book")
+        else:
+            return book
+    
+    @strawberry.mutation
+    async def DeleteExistingSong(self, id_song: str) -> str:
+        song = await DeleteSong(id_song=id_song)
+        if song is None:
+            raise ValueError("Error trying to delete the song")
+        else:
+            return song
+        
+    @strawberry.mutation
+    async def InitializeAllMovies(self) -> str:
+        movie = await InitializeMovies()
+        if movie is None:
+            raise ValueError("Error trying to initialize the movies")
+        else:
+            return movie
+        
+    @strawberry.mutation
+    async def InitializeAllBooks(self) -> str:
+        movie = await InitializeBooks()
+        if movie is None:
+            raise ValueError("Error trying to initialize the books")
+        else:
+            return movie
+        
+    @strawberry.mutation
+    async def InitializeAllSongs(self) -> str:
+        movie = await InitializeSongs()
+        if movie is None:
+            raise ValueError("Error trying to initialize the songs")
+        else:
+            return movie
+    
+    @strawberry.mutation
+    async def CreateNewMovie(self, idMovie: str, awards: Optional[str], cast: Optional[str], director: Optional[str], duration: Optional[str], episodes: Optional[int], genre: Optional[str], original_title: Optional[str], rating: Optional[float], release_date: Optional[str], seasons: Optional[int], title: Optional[str], writers: Optional[str]) -> str:
+        movie = await CreateMovie(id_movie=idMovie, awards=awards, cast=cast, director=director, duration=duration, episodes=episodes, genre=genre, original_title=original_title, rating=rating, release_date=release_date, seasons=seasons, title=title, writers=writers)
+        if movie is None:
+            raise ValueError("Error trying to create the movie")
+        else:
+            return movie
+        
+    @strawberry.mutation
+    async def CreateNewBook(self, id_book: str, author: Optional[str], genres: Optional[str], pages: Optional[int], rating: Optional[float], title: Optional[str], year: Optional[int]) -> str:
+        book = await CreateBook(id_book=id_book, author=author, genres=genres, pages=pages, rating=rating, title=title, year=year)
+        if book is None:
+            raise ValueError("Error trying to create the book")
+        else:
+            return book
+        
+    @strawberry.mutation
+    async def CreateNewSong(self, id_song: str, album: Optional[str], artist: Optional[str], duration: Optional[int], genres: Optional[str], title: Optional[str], year: Optional[int]) -> str:
+        song = await CreateSong(id_song=id_song, album=album, artist=artist, duration=duration, genres=genres, title=title, year=year)
+        if song is None:
+            raise ValueError("Error trying to create the book")
+        else:
+            return song
+    
+    @strawberry.mutation
+    async def EditExistingMovie(self, idMovie: str, awards: Optional[str], cast: Optional[str], director: Optional[str], duration: Optional[str], episodes: Optional[int], genre: Optional[str], original_title: Optional[str], rating: Optional[float], release_date: Optional[str], seasons: Optional[int], title: Optional[str], writers: Optional[str]) -> str:
+        movie = await EditMovie(id_movie=idMovie, awards=awards, cast=cast, director=director, duration=duration, episodes=episodes, genre=genre, original_title=original_title, rating=rating, release_date=release_date, seasons=seasons, title=title, writers=writers)
+        if movie is None:
+            raise ValueError("Error trying to edit the movie")
+        else:
+            return movie
+
+    @strawberry.mutation
+    async def EditExistingBook(self, id_book: str, author: Optional[str], genres: Optional[str], pages: Optional[int], rating: Optional[float], title: Optional[str], year: Optional[int]) -> str:
+        book = await EditBook(id_book=id_book, author=author, genres=genres, pages=pages, rating=rating, title=title, year=year)
+        if book is None:
+            raise ValueError("Error trying to edit the book")
+        else:
+            return book
+        
+    @strawberry.mutation
+    async def EditExistingSong(self, id_song: str, album: Optional[str], artist: Optional[str], duration: Optional[int], genres: Optional[str], title: Optional[str], year: Optional[int]) -> str:
+        song = await EditSong(id_song=id_song, album=album, artist=artist, duration=duration, genres=genres, title=title, year=year)
+        if song is None:
+            raise ValueError("Error trying to edit the song")
+        else:
+            return song
+    
+    @strawberry.mutation
+    async def DeleteExistingMovie(self, idMovie: str) -> str:
+        movie = await DeleteMovie(id_movie=idMovie)
+        if movie is None:
+            raise ValueError("Error trying to delete the movie")
+        else:
+            return movie
+    
+    @strawberry.mutation
+    async def DeleteExistingBook(self, id_book: str) -> str:
+        book = await DeleteBook(id_book=id_book)
+        if book is None:
+            raise ValueError("Error trying to delete the book")
+        else:
+            return book
+    
+    @strawberry.mutation
+    async def DeleteExistingSong(self, id_song: str) -> str:
+        song = await DeleteSong(id_song=id_song)
+        if song is None:
+            raise ValueError("Error trying to delete the song")
+        else:
+            return song
         
     @strawberry.field
     async def recoverPassword(self, token: str, newPassword: str) -> Other:
@@ -295,7 +569,10 @@ class Mutation:
         return message
         
     @strawberry.field   
-    async def create_recommendation(input: CreateRecommendationInput) -> RecommendationResponse:
+    async def create_recommendation(self,token:str,input: CreateRecommendationInput) -> RecommendationResponse:
+        isTokenValid = await Authenticate(token)
+        if isTokenValid["isTokenValid"] == False:
+            raise ValueError("Invalid Token, user not authorized")
         likes_data = await fetch_likes(input.user_id)
         if likes_data:
             send_recommendation(likes_data)
@@ -398,6 +675,72 @@ class Mutation:
         payment = await CancelBill(id_payment=id_payment)
         return payment
 
+    
+    @strawberry.field
+    async def likeMedia(self,token:str, id:int, mediaId:str, type:str) -> Other:
+        isTokenValid = await Authenticate(token)
+        if isTokenValid["isTokenValid"] == False:
+            raise ValueError("Invalid Token, user not authorized")
+        like = await LikeMedia(id=id, mediaId=mediaId, type=type)
+        if like is None:
+            raise ValueError("Like not created")
+        else:
+            return like
+
+    @strawberry.field
+    async def dislikeMedia(self,token:str, id:int, mediaId:str, type:str) -> Other:
+        isTokenValid = await Authenticate(token)
+        if isTokenValid["isTokenValid"] == False:
+            raise ValueError("Invalid Token, user not authorized")
+        dislike = await DislikeMedia(id=id, mediaId=mediaId, type=type)
+        if dislike is None:
+            raise ValueError("Dislike not created")
+        else:
+            return dislike
+        
+    @strawberry.field
+    async def addToWishlist(self,token:str, id:int, mediaId:str, type:str) -> Other:
+        isTokenValid = await Authenticate(token)
+        if isTokenValid["isTokenValid"] == False:
+            raise ValueError("Invalid Token, user not authorized")
+        dislike = await AddToWishlist(id=id, mediaId=mediaId, type=type)
+        if dislike is None:
+            raise ValueError("Media not added to wishlist")
+        else:
+            return dislike
+        
+    @strawberry.field
+    async def removeFromWishlist(self,token:str, id:int, mediaId:str, type:str) -> Other:
+        isTokenValid = await Authenticate(token)
+        if isTokenValid["isTokenValid"] == False:
+            raise ValueError("Invalid Token, user not authorized")
+        dislike = await RemoveFromWishlist(id=id, mediaId=mediaId, type=type)
+        if dislike is None:
+            raise ValueError("Media not removed to wishlist")
+        else:
+            return dislike
+    
+    @strawberry.field
+    async def deletePreference(self,token:str, id:int, mediaId:str, type:str) -> Other:
+        isTokenValid = await Authenticate(token)
+        if isTokenValid["isTokenValid"] == False:
+            raise ValueError("Invalid Token, user not authorized")
+        delete = await DeletePreference(id=id, mediaId=mediaId, type=type)
+        if delete is None:
+            raise ValueError("Preference not deleted")
+        else:
+            return delete
+    
+    @strawberry.field
+    async def ratingMedia(self,token:str, id:int, mediaId:str, type:str, rating:int) -> Other:
+        isTokenValid = await Authenticate(token)
+        if isTokenValid["isTokenValid"] == False:
+            raise ValueError("Invalid Token, user not authorized")
+        rating = await RatingMedia(id=id, mediaId=mediaId, type=type, rating=rating)
+        if rating is None:
+            raise ValueError("Rating not created")
+        else:
+            return rating
 
 schema = strawberry.Schema(query=Query, mutation=Mutation)
 
