@@ -5,7 +5,7 @@ from starlette.middleware.cors import CORSMiddleware
 from app.GraphQL.Companies.companiesMutations import CreateCompany, UpdatedCompany
 from app.GraphQL.Companies.companiesType import CompanyId
 from app.GraphQL.Likes.likesMutations import AddToWishlist, DeletePreference, DislikeMedia, LikeMedia, RatingMedia, RemoveFromWishlist
-from app.GraphQL.Likes.likesQueries import GetLikesById, GetLikesByMedia, GetRatingByMediaId, GetWishlistByUserId
+from app.GraphQL.Likes.likesQueries import GetLikesById, GetLikesByMedia, GetRatingByMediaId, GetSpecificLike, GetWishlistByUserId
 from app.GraphQL.Likes.likesTypes import Like
 from app.GraphQL.Release.releaseMutations import PublishAd
 from app.GraphQL.Users.userQueries import GetAllUsers, GetSingleUser, EmailLogin, GoogleLogin
@@ -187,7 +187,17 @@ class Query:
         if isAdmin["isAdmin"] == False:
             raise ValueError("User is not an admin")
         return await GetCompanies()
-
+    
+    @strawberry.field
+    async def SpecificLike (self, userToken:str, id:int, mediaID: str, mediaType: str) -> Like:
+        isTokenValid = await Authenticate(userToken)
+        if isTokenValid["isTokenValid"] == False:
+            raise ValueError("Invalid Token, user not authorized")
+        potentialData = await GetSpecificLike(id=id, mediaID=mediaID, mediaType=mediaType)
+        if potentialData is None:
+            raise ValueError("Likes not found")
+        else:
+            return potentialData
         
     @strawberry.field
     async def LikesByUserId (self, userToken:str, id:int) -> list[Like]:
@@ -220,10 +230,21 @@ class Query:
             return potentialData
         
     @strawberry.field
-    async def ratingByMediaId(self, id:str, media: str) -> list[Like]:
+    async def ratingByMediaId(self, id:str, media: str) -> float:
         potentialData = await GetRatingByMediaId(id=id, media=media)
         if potentialData is None:
             raise ValueError("Average rating not found")
+        else:
+            return potentialData
+        
+    @strawberry.field
+    async def ratingWithUserId(self, userToken:str, id:int, mediaID: str, mediaType: str) -> float:
+        isTokenValid = await Authenticate(userToken)
+        if isTokenValid["isTokenValid"] == False:
+            raise ValueError("Invalid Token, user not authorized")
+        potentialData = await GetRatingByMediaId(id=id, mediaID=mediaID, mediaType=mediaType)
+        if potentialData is None:
+            raise ValueError("Rating not found")
         else:
             return potentialData
         
