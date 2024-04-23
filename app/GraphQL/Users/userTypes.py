@@ -43,3 +43,11 @@ class UpdateUser:
     avatarUrl: Optional[str] = None
     gender: Optional[str] = None
     country: Optional[str] = None
+
+@strawberry.type
+class UserInfo:
+    id:int
+
+@strawberry.type
+class OtherInt:
+    id: int

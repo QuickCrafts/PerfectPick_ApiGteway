@@ -114,3 +114,24 @@ async def PasswordReset(email: str) -> str:
         if response.status_code == 500:
             return None
         return response.text
+    
+async def SendContactEmail(email: str, name: str, message: str) -> str:
+    api_url = os.environ.get("USERS_URL")
+    auth_url = api_url + "/Users/contact"
+    async with httpx.AsyncClient() as client:
+        response = await client.post(auth_url, headers={"Content-Type": "application/json"}, json={"email": email, "name": name, "message": message})
+        if response.status_code == 500:
+            return None
+        return response.text
+    
+async def VerifyGetId(token: str) -> int:
+    api_url = os.environ.get("USERS_URL")
+    auth_url = api_url + "/Users/verify/" + token
+    async with httpx.AsyncClient() as client:
+        response = await client.get(auth_url)
+        if response.status_code == 500 or response.status_code == 404 or response.status_code == 401: 
+            return None
+        elif response.status_code == 200:
+            data = response.json()
+            return int(data["id"])
+        

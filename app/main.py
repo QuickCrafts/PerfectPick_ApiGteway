@@ -5,9 +5,9 @@ from starlette.middleware.cors import CORSMiddleware
 from app.GraphQL.Companies.companiesMutations import CreateCompany, UpdatedCompany
 from app.GraphQL.Companies.companiesType import CompanyId
 from app.GraphQL.Release.releaseMutations import PublishAd
-from app.GraphQL.Users.userQueries import GetAllUsers, GetSingleUser, EmailLogin, GoogleLogin
+from app.GraphQL.Users.userQueries import GetAllUsers, GetSingleUser, EmailLogin, GoogleLogin, SendContactEmail, VerifyGetId
 from app.GraphQL.Users.userMutations import RegisterUser, VerifyAccount
-from app.GraphQL.Users.userTypes import User, UserToken, GoogleURL, Other
+from app.GraphQL.Users.userTypes import OtherInt, User, UserToken, GoogleURL, Other
 from app.GraphQL.Payments.paymentsQueries import GetAllPayments, GetPaymentByAd, GetPaymentByCompany, GetSinglePayment
 from app.GraphQL.Payments.paymentsMutations import CreateBill, PayBill, CancelBill
 from app.GraphQL.Payments.paymentType import Payment
@@ -30,6 +30,17 @@ load_dotenv()
 
 @strawberry.type
 class Query:
+
+    @strawberry.field
+    async def verifyIdentity(self, userToken: str) -> OtherInt:
+        message = await VerifyGetId(token=userToken)
+        return OtherInt(id=message)
+
+    @strawberry.field
+    async def contactUs(self, name: str, email: str, message: str) -> Other:
+        await SendContactEmail(name=name, email=email, message=message)
+        return Other(message="Email sent to admin")
+
     @strawberry.field
     async def allUsers(self, userToken: str) -> list[User]:
         isTokenValid = await Authenticate(userToken)
@@ -240,7 +251,7 @@ class Mutation:
         return message
         
     @strawberry.field
-    async def createCountry(self,token:str, id: int) -> Other:
+    async def createCountry(self,token:str, id: int, name:str, code_2:str, code_3:str) -> Other:
         isTokenValid = await Authenticate(token)
         if isTokenValid["isTokenValid"] == False:
             raise ValueError("Invalid Token, user not authorized")
