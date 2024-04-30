@@ -258,7 +258,7 @@ class Query:
             raise ValueError("Rating not found")
         else:
             return potentialData
-        
+    @strawberry.field
     async def GetMovies(self) -> list[Movie]:
         return await GetAllMovies()
     
