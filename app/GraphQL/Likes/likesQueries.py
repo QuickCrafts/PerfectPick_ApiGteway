@@ -59,9 +59,9 @@ async def GetLikesByMedia(id:str , media:str, preference: str = None) -> list[Li
 
         return likes
     
-async def GetSpecificLike(id:str , mediaID:str, mediaType: str) -> Like:
+async def GetSpecificLike(id:int , mediaID:str, mediaType: str) -> Like:
     api_url = os.environ.get("LIKES_URL")
-    likes_url = api_url + "/likes?user_id=" + id + "&media_type=" + mediaType + "&media_id=" + mediaID
+    likes_url = api_url + "/likes?user_id=" + str(id) + "&media_type=" + mediaType + "&media_id=" + mediaID
     
     async with httpx.AsyncClient() as client:
         response = await client.get(likes_url)

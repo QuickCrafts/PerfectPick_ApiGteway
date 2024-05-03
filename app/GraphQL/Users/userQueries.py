@@ -1,4 +1,4 @@
-from app.GraphQL.Users.userTypes import User, UserToken, GoogleURL, Country
+from app.GraphQL.Users.userTypes import User, UserInfo, UserToken, GoogleURL, Country
 import httpx
 import os
 
@@ -124,7 +124,7 @@ async def SendContactEmail(email: str, name: str, message: str) -> str:
             return None
         return response.text
     
-async def VerifyGetId(token: str) -> int:
+async def VerifyGetId(token: str) -> UserInfo:
     api_url = os.environ.get("USERS_URL")
     auth_url = api_url + "/Users/verify/" + token
     async with httpx.AsyncClient() as client:
@@ -133,5 +133,7 @@ async def VerifyGetId(token: str) -> int:
             return None
         elif response.status_code == 200:
             data = response.json()
-            return int(data["id"])
+            id = int(data["id"])
+            admin = bool(data["admin"])
+            return UserInfo(id=id, admin=admin)
         

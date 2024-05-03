@@ -10,7 +10,7 @@ from app.GraphQL.Likes.likesTypes import Like
 from app.GraphQL.Release.releaseMutations import PublishAd
 from app.GraphQL.Users.userQueries import GetAllUsers, GetSingleUser, EmailLogin, GoogleLogin, SendContactEmail, VerifyGetId
 from app.GraphQL.Users.userMutations import RegisterUser, VerifyAccount
-from app.GraphQL.Users.userTypes import OtherInt, User, UserToken, GoogleURL, Other
+from app.GraphQL.Users.userTypes import OtherInt, User, UserInfo, UserToken, GoogleURL, Other
 from app.GraphQL.Payments.paymentsQueries import GetAllPayments, GetPaymentByAd, GetPaymentByCompany, GetSinglePayment
 from app.GraphQL.Payments.paymentsMutations import CreateBill, PayBill, CancelBill
 from app.GraphQL.Payments.paymentType import Payment
@@ -39,9 +39,9 @@ load_dotenv()
 class Query:
 
     @strawberry.field
-    async def verifyIdentity(self, userToken: str) -> OtherInt:
+    async def verifyIdentity(self, userToken: str) -> UserInfo:
         message = await VerifyGetId(token=userToken)
-        return OtherInt(id=message)
+        return message
 
     @strawberry.field
     async def contactUs(self, name: str, email: str, message: str) -> Other:

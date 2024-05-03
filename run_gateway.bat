@@ -11,4 +11,4 @@ rem Build apigateway image
 docker build -t apigateway .
 
 rem Create apigateway container
-docker run -d --name apigateway --network perfectpicknetwork -p 9000:9000 apigateway 
+docker run -d --name apigateway --network myalltimenetwork -p 9000:9000 apigateway 

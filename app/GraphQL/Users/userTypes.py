@@ -47,6 +47,7 @@ class UpdateUser:
 @strawberry.type
 class UserInfo:
     id:int
+    admin: bool
 
 @strawberry.type
 class OtherInt:
