@@ -35,4 +35,5 @@ class Song:
     duration: Optional[int]
     genres: Optional[str]
     title: Optional[str]
+    rating: Optional[float]
     year: Optional[int]

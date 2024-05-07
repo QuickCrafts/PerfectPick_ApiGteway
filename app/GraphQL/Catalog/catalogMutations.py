@@ -47,11 +47,11 @@ async def CreateBook(id_book: str, author: Optional[str], genres: Optional[str],
             return None
         return response.text
 
-async def CreateSong(id_song: str, album: Optional[str], artist: Optional[str], duration: Optional[int], genres: Optional[str], title: Optional[str], year: Optional[int]) -> str:
+async def CreateSong(id_song: str, album: Optional[str], artist: Optional[str], duration: Optional[int], genres: Optional[str], title: Optional[str], rating: Optional[float], year: Optional[int]) -> str:
     api_url = os.environ.get("CATALOG_URL")
     auth_url = api_url + "/songs"
     async with httpx.AsyncClient() as client:
-        response = await client.post(auth_url, headers={"Content-Type": "application/json"}, json={"id_song": id_song, "album": album, "artist": artist, "duration": duration, "genres": genres, "title": title, "year": year})
+        response = await client.post(auth_url, headers={"Content-Type": "application/json"}, json={"id_song": id_song, "album": album, "artist": artist, "duration": duration, "genres": genres, "title": title, "rating": rating, "year": year})
         if response.status_code == 500:
             return None
         return response.text
@@ -74,11 +74,11 @@ async def EditBook(id_book: str, author: Optional[str], genres: Optional[str], p
             return None
         return response.text
 
-async def EditSong(id_song: str, album: Optional[str], artist: Optional[str], duration: Optional[int], genres: Optional[str], title: Optional[str], year: Optional[int]) -> str:
+async def EditSong(id_song: str, album: Optional[str], artist: Optional[str], duration: Optional[int], genres: Optional[str], title: Optional[str], rating: Optional[float], year: Optional[int]) -> str:
     api_url = os.environ.get("CATALOG_URL")
     auth_url = f"{api_url}/songs/{id_song}"
     async with httpx.AsyncClient() as client:
-        response = await client.put(auth_url, headers={"Content-Type": "application/json"}, json={"id_song": id_song, "album": album, "artist": artist, "duration": duration, "genres": genres, "title": title, "year": year})
+        response = await client.put(auth_url, headers={"Content-Type": "application/json"}, json={"id_song": id_song, "album": album, "artist": artist, "duration": duration, "genres": genres, "title": title, "rating": rating, "year": year})
         if response.status_code == 500:
             return None
         return response.text
