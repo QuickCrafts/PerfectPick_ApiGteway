@@ -4,13 +4,13 @@ from strawberry.asgi import GraphQL
 from starlette.middleware.cors import CORSMiddleware
 from app.GraphQL.Companies.companiesMutations import CreateCompany, UpdatedCompany
 from app.GraphQL.Companies.companiesType import CompanyId
-from app.GraphQL.Likes.likesMutations import DeletePreference, DislikeMedia, LikeMedia, RatingMedia
-from app.GraphQL.Likes.likesQueries import GetLikesById, GetLikesByMedia, GetWishlistByUserId
+from app.GraphQL.Likes.likesMutations import AddToWishlist, DeletePreference, DislikeMedia, LikeMedia, RatingMedia, RemoveFromWishlist
+from app.GraphQL.Likes.likesQueries import GetLikesById, GetLikesByMedia, GetRatingByMediaId, GetSpecificLike, GetWishlistByUserId
 from app.GraphQL.Likes.likesTypes import Like
 from app.GraphQL.Release.releaseMutations import PublishAd
-from app.GraphQL.Users.userQueries import GetAllUsers, GetSingleUser, EmailLogin, GoogleLogin
+from app.GraphQL.Users.userQueries import GetAllUsers, GetSingleUser, EmailLogin, GoogleLogin, SendContactEmail, VerifyGetId
 from app.GraphQL.Users.userMutations import RegisterUser, VerifyAccount
-from app.GraphQL.Users.userTypes import User, UserToken, GoogleURL, Other
+from app.GraphQL.Users.userTypes import OtherInt, User, UserInfo, UserToken, GoogleURL, Other
 from app.GraphQL.Payments.paymentsQueries import GetAllPayments, GetPaymentByAd, GetPaymentByCompany, GetSinglePayment
 from app.GraphQL.Payments.paymentsMutations import CreateBill, PayBill, CancelBill
 from app.GraphQL.Payments.paymentType import Payment
@@ -37,6 +37,17 @@ load_dotenv()
 
 @strawberry.type
 class Query:
+
+    @strawberry.field
+    async def verifyIdentity(self, userToken: str) -> UserInfo:
+        message = await VerifyGetId(token=userToken)
+        return message
+
+    @strawberry.field
+    async def contactUs(self, name: str, email: str, message: str) -> Other:
+        await SendContactEmail(name=name, email=email, message=message)
+        return Other(message="Email sent to admin")
+
     @strawberry.field
     async def allUsers(self, userToken: str) -> list[User]:
         isTokenValid = await Authenticate(userToken)
@@ -187,38 +198,66 @@ class Query:
         if isAdmin["isAdmin"] == False:
            raise ValueError("User is not an admin")
         return await GetCompanies()
-
-        
+    
     @strawberry.field
-    async def LikesByUserId (self, userToken:str, id:int, preference:str, media:str) -> list[Like]:
+    async def SpecificLike (self, userToken:str, id:int, mediaID: str, mediaType: str) -> Like:
         isTokenValid = await Authenticate(userToken)
         if isTokenValid["isTokenValid"] == False:
             raise ValueError("Invalid Token, user not authorized")
-        potentialData = await GetLikesById(id=id, media=media, preference=preference)
+        potentialData = await GetSpecificLike(id=id, mediaID=mediaID, mediaType=mediaType)
         if potentialData is None:
             raise ValueError("Likes not found")
         else:
             return potentialData
         
     @strawberry.field
-    async def LikesByMediaId(self, id:int, media:str, preference:str) -> list[Like]:
-        potentialData = await GetLikesByMedia(id=id, media=media, preference=preference)
+    async def LikesByUserId (self, userToken:str, id:int) -> list[Like]:
+        isTokenValid = await Authenticate(userToken)
+        if isTokenValid["isTokenValid"] == False:
+            raise ValueError("Invalid Token, user not authorized")
+        potentialData = await GetLikesById(id=id, media=None, preference=None)
         if potentialData is None:
             raise ValueError("Likes not found")
         else:
             return potentialData
         
     @strawberry.field
-    async def wishlistByUserId(self, token:str, id:int, media:str) -> list[Like]:
+    async def LikesByMediaId(self, id:str, media:str) -> list[Like]:
+        potentialData = await GetLikesByMedia(id=id, media=media, preference=None)
+        if potentialData is None:
+            raise ValueError("Likes not found")
+        else:
+            return potentialData
+        
+    @strawberry.field
+    async def wishlistByUserId(self, token:str, id:int) -> list[Like]:
         isTokenValid = await Authenticate(token)
         if isTokenValid["isTokenValid"] == False:
             raise ValueError("Invalid Token, user not authorized")
-        potentialData = await GetWishlistByUserId(userID=id, media=media)
+        potentialData = await GetWishlistByUserId(userID=id)
         if potentialData is None:
             raise ValueError("Wishlist not found")
         else:
             return potentialData
         
+    @strawberry.field
+    async def ratingByMediaId(self, id:str, media: str) -> float:
+        potentialData = await GetRatingByMediaId(id=id, media=media)
+        if potentialData is None:
+            raise ValueError("Average rating not found")
+        else:
+            return potentialData
+        
+    @strawberry.field
+    async def ratingWithUserId(self, userToken:str, id:int, mediaID: str, mediaType: str) -> float:
+        isTokenValid = await Authenticate(userToken)
+        if isTokenValid["isTokenValid"] == False:
+            raise ValueError("Invalid Token, user not authorized")
+        potentialData = await GetRatingByMediaId(id=id, mediaID=mediaID, mediaType=mediaType)
+        if potentialData is None:
+            raise ValueError("Rating not found")
+        else:
+            return potentialData
     @strawberry.field
     async def GetMovies(self) -> list[Movie]:
         return await GetAllMovies()
@@ -507,7 +546,7 @@ class Mutation:
         return message
         
     @strawberry.field
-    async def createCountry(self,token:str, id: int) -> Other:
+    async def createCountry(self,token:str, id: int, name:str, code_2:str, code_3:str) -> Other:
         isTokenValid = await Authenticate(token)
         if isTokenValid["isTokenValid"] == False:
             raise ValueError("Invalid Token, user not authorized")
@@ -659,7 +698,7 @@ class Mutation:
 
     
     @strawberry.field
-    async def likeMedia(self,token:str, id:int, mediaId:int, type:str) -> Other:
+    async def likeMedia(self,token:str, id:int, mediaId:str, type:str) -> Other:
         isTokenValid = await Authenticate(token)
         if isTokenValid["isTokenValid"] == False:
             raise ValueError("Invalid Token, user not authorized")
@@ -668,7 +707,9 @@ class Mutation:
             raise ValueError("Like not created")
         else:
             return like
-    async def dislikeMedia(self,token:str, id:int, mediaId:int, type:str) -> Other:
+
+    @strawberry.field
+    async def dislikeMedia(self,token:str, id:int, mediaId:str, type:str) -> Other:
         isTokenValid = await Authenticate(token)
         if isTokenValid["isTokenValid"] == False:
             raise ValueError("Invalid Token, user not authorized")
@@ -677,8 +718,31 @@ class Mutation:
             raise ValueError("Dislike not created")
         else:
             return dislike
+        
+    @strawberry.field
+    async def addToWishlist(self,token:str, id:int, mediaId:str, type:str) -> Other:
+        isTokenValid = await Authenticate(token)
+        if isTokenValid["isTokenValid"] == False:
+            raise ValueError("Invalid Token, user not authorized")
+        dislike = await AddToWishlist(id=id, mediaId=mediaId, type=type)
+        if dislike is None:
+            raise ValueError("Media not added to wishlist")
+        else:
+            return dislike
+        
+    @strawberry.field
+    async def removeFromWishlist(self,token:str, id:int, mediaId:str, type:str) -> Other:
+        isTokenValid = await Authenticate(token)
+        if isTokenValid["isTokenValid"] == False:
+            raise ValueError("Invalid Token, user not authorized")
+        dislike = await RemoveFromWishlist(id=id, mediaId=mediaId, type=type)
+        if dislike is None:
+            raise ValueError("Media not removed to wishlist")
+        else:
+            return dislike
     
-    async def deletePreference(self,token:str, id:int, mediaId:int, type:str) -> Other:
+    @strawberry.field
+    async def deletePreference(self,token:str, id:int, mediaId:str, type:str) -> Other:
         isTokenValid = await Authenticate(token)
         if isTokenValid["isTokenValid"] == False:
             raise ValueError("Invalid Token, user not authorized")
@@ -688,7 +752,8 @@ class Mutation:
         else:
             return delete
     
-    async def ratingMedia(self,token:str, id:int, mediaId:int, type:str, rating:int) -> Other:
+    @strawberry.field
+    async def ratingMedia(self,token:str, id:int, mediaId:str, type:str, rating:int) -> Other:
         isTokenValid = await Authenticate(token)
         if isTokenValid["isTokenValid"] == False:
             raise ValueError("Invalid Token, user not authorized")

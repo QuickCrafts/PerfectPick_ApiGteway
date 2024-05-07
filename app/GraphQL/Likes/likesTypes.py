@@ -2,15 +2,13 @@ import strawberry
 
 @strawberry.type
 class Like:
-    id: int
+    media_id: str
     user_id: int
     type: str
-    rating: float
     like_type: str
-    wishlist: bool
 class Media:
     type: str
-    id: int
+    id: str
     info: str
 class LikeExtended:
     like: Like

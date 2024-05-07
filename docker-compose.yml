@@ -1,0 +1,14 @@
+
+services:
+  apigateway:
+    build: ./PerfectPick_ag
+    container_name: apigateway
+    ports:
+      - "9000:9000"
+    networks:
+      - perfectpicknetwork
+
+networks:
+  perfectpicknetwork:
+    external: true
+
