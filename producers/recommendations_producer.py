@@ -25,10 +25,10 @@ def send_recommendation(recommendation_data):
             connection.close()
 
 # Test the send_recommendation function with the provided recommendation data
-recommendation_data = {
+""" recommendation_data = {
     "id_user": 245564845,
     "movies": ["tt0106941", "tt0118694"],
     "books": ["AYhxAQHUdCYC", "fyPsAAAAMAAJ"],
     "songs": ["3qhlB30KknSejmIvZZLjOD"]
 }
-send_recommendation(recommendation_data)
+send_recommendation(recommendation_data) """
